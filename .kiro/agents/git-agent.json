@@ -6,5 +6,20 @@
     "fs_read",
     "fs_write",
     "shell"
-  ]
+  ],
+  "toolsSettings": {
+    "execute_bash": {
+      "allowedCommands": [
+        "^git (status|diff|log|branch)( [^&;|]*)?$",
+        "^gh (issue|pr) (list|view)( [^&;|]*)?$"
+      ],
+      "deniedCommands": [
+        ".*--no-verify.*",
+        ".*git push.*(--force|-f\\b).*",
+        ".*gh repo delete.*",
+        ".*\\bsudo\\b.*",
+        ".*\\brm\\b.*"
+      ]
+    }
+  }
 }
