@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 .kiro/prompt-drafts/
 .ruff_cache/
+working-notes.md
