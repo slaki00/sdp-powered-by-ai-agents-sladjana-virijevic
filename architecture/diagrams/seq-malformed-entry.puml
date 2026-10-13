@@ -1,0 +1,35 @@
+@startuml seq-malformed-entry
+title BankOCR - Malformed Entry: Processing Continues with Next Entry
+
+actor "Operator" as op
+participant "CLI Entry Point" as ep
+participant "Recognition" as rec
+participant "Validation" as val
+participant "Reporting & Correction" as rep
+participant "Scan File" as input
+participant "Result File" as output
+
+op -> ep: Start with scan file path and result file path
+ep -> rec: Run with input file path
+rec -> input: Read entries
+input -> rec: 4-line entries
+rec -> rec: Convert ASCII patterns to digits
+note right of rec
+  Entry 1: all digits OK
+  Entry 2: unreadable
+end note
+rec --> ep: Entry 1 with 9 digits, Entry 2 marked unreadable
+
+ep -> val: Run with entries
+val -> val: Check entry 1: checksum passes
+val -> val: Entry 2 has unreadable digits: mark ILL
+val --> ep: Entry 1 valid, Entry 2 ILL
+
+ep -> rep: Run with entries and output file path
+rep -> rep: Entry 1: no correction needed
+rep -> rep: Entry 2: marked ILL, processing continues
+rep -> output: Write "123456789"
+rep -> output: Write "????????? ILL"
+rep --> ep: Done
+
+@enduml

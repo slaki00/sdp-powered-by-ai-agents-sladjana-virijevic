@@ -37,3 +37,34 @@ Accuracy and easy testing matter more than speed.
 - (−) The operator has only a command line, without a graphical interface.
 - (−) Python is slower than compiled languages, but for files of this size the
   difference is not noticeable.
+
+## ADR-002: Packaging and execution with Docker
+
+**Status:** Accepted
+
+**Context:**
+The instructor decided that the program should be packaged as a Docker image
+and run on the Operator's local machine.
+
+**Decision:**
+- The program is packaged as a Docker image containing Python 3.12.
+- The Operator starts the container locally with Docker.
+- The container runs one CLI process and exits when it finishes.
+- A folder on the local machine is mounted into the container as a volume so
+  the CLI can read the scan file and write the result file.
+
+**Rationale:**
+- Docker provides a predictable runtime environment regardless of what is
+  installed on the local machine.
+- Only Docker needs to be installed on the local machine; Python 3.12 is inside
+  the image.
+- A mounted volume is the simplest way to exchange files between the host and
+  the container without hardcoding paths.
+
+**Consequences:**
+- (+) The Operator does not need to install Python or any dependencies.
+- (+) The runtime environment is identical across machines.
+- (−) The Operator needs Docker installed and must know how to start a
+  container and mount a folder.
+- (−) File paths inside the container differ from paths on the host, so the
+  mount point must be documented.

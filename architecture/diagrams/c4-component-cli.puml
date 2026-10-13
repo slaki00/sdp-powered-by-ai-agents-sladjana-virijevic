@@ -1,0 +1,23 @@
+@startuml c4-component-cli
+!include <C4/C4_Component>
+
+title BankOCR - CLI Components
+
+Container_Ext(input, "Scan File", "Text file", "4-line entries with ASCII digits")
+Container_Ext(output, "Result File", "Text file", "Account numbers with status flags")
+
+Container_Boundary(cli, "BankOCR CLI") {
+    Component(recognition, "Recognition", "Python 3.12", "Reads the scan file, splits it into entries, converts ASCII patterns to digits")
+    Component(validation, "Validation", "Python 3.12", "Checks each account number with the checksum formula, marks ERR or ILL")
+    Component(reporting, "Reporting & Correction", "Python 3.12", "Attempts corrections, marks AMB when ambiguous, writes the result file")
+    Component(entrypoint, "CLI Entry Point", "Python 3.12", "Parses arguments, runs the three modules in order")
+}
+
+Rel(entrypoint, recognition, "1. Runs")
+Rel(entrypoint, validation, "2. Runs")
+Rel(entrypoint, reporting, "3. Runs")
+Rel(recognition, input, "Reads entries from", "File system")
+Rel(reporting, output, "Writes results to", "File system")
+
+SHOW_LEGEND()
+@enduml

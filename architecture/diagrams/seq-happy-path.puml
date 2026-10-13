@@ -1,0 +1,28 @@
+@startuml seq-happy-path
+title BankOCR - Happy Path: All Digits Recognised and Checksum Passes
+
+actor "Operator" as op
+participant "CLI Entry Point" as ep
+participant "Recognition" as rec
+participant "Validation" as val
+participant "Reporting & Correction" as rep
+participant "Scan File" as input
+participant "Result File" as output
+
+op -> ep: Start with scan file path and result file path
+ep -> rec: Run with input file path
+rec -> input: Read entries
+input -> rec: 4-line entries
+rec -> rec: Convert ASCII patterns to digits
+rec --> ep: Entries with 9 digits each
+
+ep -> val: Run with entries
+val -> val: Apply checksum to each number
+val --> ep: Entries with status: valid
+
+ep -> rep: Run with entries and output file path
+rep -> rep: No corrections needed
+rep -> output: Write one number per line
+rep --> ep: Done
+
+@enduml

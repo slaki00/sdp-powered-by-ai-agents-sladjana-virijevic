@@ -1,0 +1,41 @@
+@startuml seq-err-correction
+title BankOCR - Bad Checksum: ERR with Correction Attempted
+
+actor "Operator" as op
+participant "CLI Entry Point" as ep
+participant "Recognition" as rec
+participant "Validation" as val
+participant "Reporting & Correction" as rep
+participant "Scan File" as input
+participant "Result File" as output
+
+op -> ep: Start with scan file path and result file path
+ep -> rec: Run with input file path
+rec -> input: Read entries
+input -> rec: 4-line entries
+rec -> rec: Convert ASCII patterns to digits
+rec --> ep: Entries with 9 digits each
+
+ep -> val: Run with entries
+val -> val: Apply checksum to each number
+note right of val
+  One number fails:
+  (1*d1 + ... + 9*d9) mod 11 != 0
+end note
+val --> ep: Entry marked ERR
+
+ep -> rep: Run with entries and output file path
+rep -> rep: Try alternative digit interpretations
+alt No alternative passes the checksum
+  rep -> rep: Keep ERR status
+  rep -> output: Write number with ERR
+else Exactly one alternative passes the checksum
+  rep -> rep: Replace number, clear flag
+  rep -> output: Write corrected number
+else More than one alternative passes
+  rep -> rep: Mark AMB
+  rep -> output: Write number with AMB
+end
+rep --> ep: Done
+
+@enduml

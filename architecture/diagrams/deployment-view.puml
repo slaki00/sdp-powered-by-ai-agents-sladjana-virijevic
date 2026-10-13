@@ -1,0 +1,24 @@
+@startuml deployment-view
+!include <C4/C4_Deployment>
+
+title BankOCR - Deployment View
+
+Deployment_Node(local, "Local Machine", "Operator's computer") {
+    Deployment_Node(engine, "Docker Engine", "Docker") {
+        Container(deployment_container, "BankOCR Container", "Docker, Python 3.12", "Runs the CLI process that processes the scan file")
+    }
+    Deployment_Node(folder, "Data Folder", "Local file system") {
+        Container_Ext(scanfile, "Scan File", "Text file", "4-line entries with ASCII digits")
+        Container_Ext(resultfile, "Result File", "Text file", "One account number per line with status flags")
+    }
+}
+
+Person(operator, "Operator", "Bank clerk who submits scan files and reviews flagged numbers")
+
+Rel(operator, engine, "Starts container")
+Rel(engine, deployment_container, "Runs single CLI process")
+Rel(deployment_container, scanfile, "Reads", "Mounted volume")
+Rel(deployment_container, resultfile, "Writes", "Mounted volume")
+
+SHOW_LEGEND()
+@enduml
