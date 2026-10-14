@@ -1,6 +1,6 @@
 # arc42 Chapter Summary
 
-A short summary of the twelve arc42 chapters and what each of them should answer.
+A general summary of the twelve arc42 chapters and what each of them should answer. It describes the arc42 template itself, not the BankOCR system. The BankOCR architecture is documented in `architecture/`.
 
 ## 1. Introduction and Goals
 
