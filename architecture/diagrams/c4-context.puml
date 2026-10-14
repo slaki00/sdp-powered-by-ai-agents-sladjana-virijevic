@@ -1,0 +1,17 @@
+@startuml c4-context
+!include <C4/C4_Context>
+
+title BankOCR - System Context
+
+Person(operator, "Operator", "Bank clerk who submits scan files and reviews flagged numbers")
+System_Ext(scanner, "Scanner", "Produces files with account numbers drawn in ASCII characters")
+System(bankocr, "BankOCR", "Reads, validates and corrects scanned bank account numbers")
+System_Ext(bank, "Bank System", "Uses valid account numbers to process payments")
+
+Rel(scanner, operator, "Produces scan file")
+Rel(operator, bankocr, "Submits scan file")
+Rel(bankocr, bank, "Delivers account numbers with status")
+Rel(bankocr, operator, "Reports flagged numbers (ERR / ILL / AMB)")
+
+SHOW_LEGEND()
+@enduml

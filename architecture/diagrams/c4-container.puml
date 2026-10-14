@@ -1,0 +1,18 @@
+@startuml c4-container
+!include <C4/C4_Container>
+
+title BankOCR - Container Diagram
+
+Person(operator, "Operator", "Bank clerk who submits scan files and reviews flagged numbers")
+System_Ext(bank, "Bank System", "Uses valid account numbers to process payments")
+
+System_Boundary(bankocr, "BankOCR") {
+    Container(cli, "BankOCR CLI", "Python 3.12, Docker", "Reads scan files, validates and corrects account numbers, writes result files")
+}
+
+Rel(operator, cli, "Submits scan file", "CLI argument")
+Rel(cli, operator, "Writes result file", "File system")
+Rel(cli, bank, "Delivers account numbers with status", "Result file")
+
+SHOW_LEGEND()
+@enduml

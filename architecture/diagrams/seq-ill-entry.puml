@@ -1,0 +1,39 @@
+@startuml seq-ill-entry
+title BankOCR - Unreadable Digit: ILL, Correction Attempted
+
+actor "Operator" as op
+participant "CLI Entry Point" as ep
+participant "Recognition" as rec
+participant "Validation" as val
+participant "Reporting & Correction" as rep
+participant "Scan File" as input
+participant "Result File" as output
+
+op -> ep: Start with scan file path and result file path
+ep -> rec: Run with input file path
+rec -> input: Read entries
+input -> rec: 4-line entries
+rec -> rec: Convert ASCII patterns to digits
+note right of rec
+  One digit does not match
+  any known pattern
+end note
+rec --> ep: Entries with one entry containing "?" for unreadable digit
+
+ep -> val: Run with entries
+val -> val: Detect unreadable digit
+val --> ep: Entry marked ILL
+
+ep -> rep: Run with entries and output file path
+rep -> rep: Try alternative interpretations for the unreadable digit
+alt No alternative passes the checksum
+  rep -> rep: Keep ILL status
+else One alternative passes the checksum
+  rep -> rep: Replace number, clear flag
+else More than one alternative passes
+  rep -> rep: Mark AMB
+end
+rep -> output: Write number with final status (ILL, corrected or AMB)
+rep --> ep: Done
+
+@enduml
