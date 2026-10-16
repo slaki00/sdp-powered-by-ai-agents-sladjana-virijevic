@@ -4,6 +4,7 @@ repos:
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^docs/user-stories/
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-json
