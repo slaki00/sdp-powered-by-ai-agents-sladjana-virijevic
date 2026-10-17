@@ -68,3 +68,40 @@ and run on the Operator's local machine.
   container and mount a folder.
 - (−) File paths inside the container differ from paths on the host, so the
   mount point must be documented.
+
+## ADR-003: pytest as test runner
+
+**Status:** Accepted
+
+**Context:**
+The course requires automated tests to be run in the CI/CD pipeline. Module 4
+starter `cicd-agent.json` specifies "The default CMD must run pytest", and
+Module 5 covers test-driven development. We need a test runner, while keeping
+ADR-001 valid: the BankOCR program itself uses only the Python 3.12 standard
+library.
+
+**Decision:**
+- pytest is used to run the tests. It is a development and CI dependency only;
+  the BankOCR program itself uses only the Python 3.12 standard library.
+- pytest is listed in `requirements.txt` with a pinned version 9.1.1.
+- pytest is installed in the Docker image so tests can run inside the container.
+- Source code lives in `src/bankocr` and tests in `tests/`.
+
+**Rationale:**
+- The course uses pytest: Module 4 starter `cicd-agent.json` specifies "The
+  default CMD must run pytest", and Module 5 covers test-driven development.
+- Pinning the version (9.1.1) ensures reproducible test runs across machines
+  and CI pipelines.
+- Installing pytest in the Docker image means the default CMD can run pytest
+  without any additional setup on the local machine.
+
+**Consequences:**
+- (+) Tests can run in the Docker container with a single command, matching the
+  Module 4 CI/CD requirement.
+- (+) The test setup is reproducible because the version is pinned.
+- (+) ADR-001 stays valid: the BankOCR program itself has no external
+  dependencies.
+- (−) The Docker image is larger because it contains pytest in addition to
+  Python 3.12 and the program.
+- (−) pytest is an external package, so it must be pinned and kept up to date
+  for security and compatibility.

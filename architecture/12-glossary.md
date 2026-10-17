@@ -16,8 +16,10 @@
 | **ERR** | Status marker for an entry where all digits are recognised but the checksum fails. |
 | **ILL** | Status marker for an entry where one or more digits could not be recognised. |
 | **Operator** | The bank clerk who submits the scan file to BankOCR and reviews the result file. |
+| **pytest** | Test runner used to run the BankOCR tests (ADR-003). |
 | **Recognition** | The module that reads the scan file and converts ASCII digits to numeric digits. |
 | **Reporting & Correction** | The module that attempts corrections, applies AMB markers, and writes the result file. |
+| **requirements.txt** | File listing external packages needed for development and CI. Currently contains pytest pinned at version 9.1.1 (ADR-003). |
 | **Result file** | The output text file with one account number per line, optionally followed by a status marker. |
 | **Scan file** | The input text file produced by the scanner, containing entries with ASCII digits. |
 | **Scanner** | The machine that digitises paper documents into the scan file. |
