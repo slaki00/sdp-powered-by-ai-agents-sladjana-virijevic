@@ -3,8 +3,20 @@ name: CI
 on:
   push:
     branches: [main, 'feature/**', 'fix/**']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.github/workflows/ci.yml'
 
 permissions:
   contents: read
