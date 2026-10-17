@@ -38,6 +38,7 @@ repos:
       - id: bandit
         args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
