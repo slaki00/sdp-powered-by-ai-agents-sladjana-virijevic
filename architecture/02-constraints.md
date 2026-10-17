@@ -9,7 +9,7 @@ process.
 | Constraint | Detail | Source |
 |------------|--------|--------|
 | **Language** | Python 3.12. | ADR-001, `pyproject.toml` (`requires-python = ">=3.12"`) |
-| **Dependencies** | Standard library only. No external packages. | ADR-001 |
+| **Dependencies** | Standard library only for the program. pytest is used only for running tests (ADR-003). | ADR-001, ADR-003 |
 | **Framework** | No application framework. The program is a CLI built with `argparse` or plain `sys.argv`. | ADR-001 |
 | **Data storage** | Plain text files on the local file system. No database. | ADR-001 |
 | **Input format** | Each entry is 4 lines: 3 lines of 27 characters (`_`, `\|`, space) and one blank line. An account number has exactly 9 digits. | Kata description |
