@@ -38,6 +38,7 @@ repos:
       - id: bandit
         args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/
 
   # Secret detection
   - repo: https://github.com/Yelp/detect-secrets
@@ -54,6 +55,13 @@ repos:
         language: system
         stages: [commit-msg]
         always_run: true
+
+      - id: docker-test
+        name: Docker test
+        entry: bash scripts/hooks/docker-test.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
 
   # Generate SVG diagrams from staged .puml files
   - repo: local

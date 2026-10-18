@@ -2,11 +2,12 @@
 
 ## 4.1 Technology Decisions
 
-The technology decisions are recorded in ADR-001 and ADR-002:
+The technology decisions are recorded in ADR-001, ADR-002 and ADR-003:
 
 - **Python 3.12** with the standard library only (ADR-001).
 - **Plain text files** for input and output, no database (ADR-001).
 - **Docker** for packaging and local execution (ADR-002).
+- **pytest** as the test runner, pinned in `requirements.txt` (ADR-003).
 
 ## 4.2 System Decomposition
 
