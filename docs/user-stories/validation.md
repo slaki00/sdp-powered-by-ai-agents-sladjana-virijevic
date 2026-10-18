@@ -107,9 +107,9 @@ Given a recognised account number, use VALIDATION-BE-001.1 to mark it valid (no 
 
 ### VALIDATION-INFRA-001.1: Package Validation in the BankOCR Docker image
 
-The Validation module is part of the BankOCR Docker image and runs with the Python 3.12 standard library only.
+The Validation module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001 and ADR-002; `architecture/07-deployment-view.md`
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-003; `architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Validation runs inside the container
 
@@ -171,14 +171,19 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 
 Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
 
+### Test environment
+
+See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by all stories and is described once in the Recognition bundle.
+
 ## Implementation Order
 
 1. VALIDATION-INFRA-001.1: Package Validation in the BankOCR Docker image
 2. VALIDATION-INFRA-001.2: File storage in the mounted data folder
 3. VALIDATION-INFRA-001.3: Monitoring through standard error
-4. VALIDATION-BE-001.1: Calculate the checksum
-5. VALIDATION-BE-001.2: Assign the validation status
-6. VALIDATION-STORY-001-S1: end-to-end check of the whole story
+4. Test environment (see RECOGNITION-INFRA-001.4)
+5. VALIDATION-BE-001.1: Calculate the checksum
+6. VALIDATION-BE-001.2: Assign the validation status
+7. VALIDATION-STORY-001-S1: end-to-end check of the whole story
 
 ## Traceability
 
@@ -189,7 +194,7 @@ Not applicable. The CLI Entry Point runs the modules in a fixed order, without e
 | VALIDATION-BE-001.1-S2 | 1.2 F2; 11 R4 | VALIDATION-BE-001.1 | Weighted sum is 222, 222 mod 11 is 2 |
 | VALIDATION-BE-001.2-S1 | 5.3 Validation; 8.2 Status Marking | VALIDATION-BE-001.2 | Number has no marker |
 | VALIDATION-BE-001.2-S2 | 5.3 Validation; 8.2 Status Marking | VALIDATION-BE-001.2 | Number is marked ERR |
-| VALIDATION-INFRA-001.1-S1 | 9 ADR-001, ADR-002; 7 Deployment View | VALIDATION-INFRA-001.1 | Result file contains "345882865" with no marker; container exits with code 0 |
+| VALIDATION-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-003; 7 Deployment View | VALIDATION-INFRA-001.1 | Result file contains "345882865" with no marker; container exits with code 0 |
 | VALIDATION-INFRA-001.2-S1 | 9 ADR-001; 7.1 Infrastructure (Data Folder) | VALIDATION-INFRA-001.2 | Result file is created in the data folder and contains "664371495 ERR" |
 | VALIDATION-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | VALIDATION-INFRA-001.3 | Nothing on standard error; result file is the only file written |
 
