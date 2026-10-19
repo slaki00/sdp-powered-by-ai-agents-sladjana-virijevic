@@ -20,4 +20,4 @@ def assign_status(digits: str) -> str:
 
     Returns "" for a valid number, "ERR" when the checksum fails.
     """
-    return ""  # Fake It: VALIDATION-BE-001.2-S1 expects ""
+    return "" if checksum_passes(digits) else "ERR"

@@ -38,3 +38,14 @@ def test_validation_be_001_2_s1_valid_number_has_no_marker():
 
     # THEN the number is valid and has no marker
     assert status == ""
+
+
+def test_validation_be_001_2_s2_failed_checksum_marked_err():
+    # GIVEN a recognised account number 664371495
+    digits = "664371495"
+
+    # WHEN the validation status is assigned
+    status = assign_status(digits)
+
+    # THEN the number is marked ERR
+    assert status == "ERR"
