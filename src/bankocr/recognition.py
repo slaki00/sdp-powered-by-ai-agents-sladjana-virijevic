@@ -1,6 +1,36 @@
+# Each digit is represented as a 9-character string: the 3-character top row,
+# followed by the 3-character middle row, followed by the 3-character bottom row.
+_DIGIT_PATTERNS = {
+    " _ " "| |" "|_|": "0",
+    "   " "  |" "  |": "1",
+    " _ " " _|" "|_ ": "2",
+    " _ " " _|" " _|": "3",
+    "   " "|_|" "  |": "4",
+    " _ " "|_ " " _|": "5",
+    " _ " "|_ " "|_|": "6",
+    " _ " "  |" "  |": "7",
+    " _ " "|_|" "|_|": "8",
+    " _ " "|_|" " _|": "9",
+}
+
+
 def recognize_digits(entry):
-    """Recognize a 9-digit account number from a 3-line entry."""
-    return "123456789"  # Fake It: RECOGNITION-BE-001.2-S1
+    """Recognize a 9-digit account number from a 3-line entry.
+
+    Each entry is a list of 3 lines of 27 characters. Each group of 3
+    columns represents one digit matched against the known patterns.
+    Raises KeyError if a pattern is not recognised (unreadable digits
+    are handled in RECOGNITION-STORY-002).
+    """
+    top, mid, bot = entry[0], entry[1], entry[2]
+    account_number = ""
+    for col in range(9):
+        start = col * 3
+        pattern = (
+            top[start : start + 3] + mid[start : start + 3] + bot[start : start + 3]
+        )
+        account_number += _DIGIT_PATTERNS[pattern]
+    return account_number
 
 
 def split_into_entries(scan_content):

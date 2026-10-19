@@ -43,3 +43,18 @@ def test_recognition_be_001_2_s1_entry_with_digits_1_through_9_is_recognised():
 
     # THEN the recognised account number is 123456789
     assert account_number == "123456789"
+
+
+def test_recognition_be_001_2_s2_entry_containing_digit_0_is_recognised():
+    # GIVEN an entry whose 3 lines of 27 characters are:
+    entry = [
+        "    _  _  _  _  _  _     _ ",
+        "|_||_|| ||_||_   |  |  ||_ ",
+        "  | _||_||_||_|  |  |  | _|",
+    ]
+
+    # WHEN Recognition converts the patterns to numeric digits
+    account_number = recognize_digits(entry)
+
+    # THEN the recognised account number is 490867715
+    assert account_number == "490867715"
