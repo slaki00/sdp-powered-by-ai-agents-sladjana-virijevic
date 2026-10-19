@@ -1,3 +1,8 @@
+def recognize_digits(entry):
+    """Recognize a 9-digit account number from a 3-line entry."""
+    return "123456789"  # Fake It: RECOGNITION-BE-001.2-S1
+
+
 def split_into_entries(scan_content):
     """Split scan file content into entries.
 

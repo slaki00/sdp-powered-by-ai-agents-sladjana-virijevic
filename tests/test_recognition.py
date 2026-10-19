@@ -1,4 +1,4 @@
-from bankocr.recognition import split_into_entries
+from bankocr.recognition import recognize_digits, split_into_entries
 
 
 def test_recognition_be_001_1_s1_two_entries_split_into_two_4_line_blocks():
@@ -28,3 +28,18 @@ def test_recognition_be_001_1_s1_two_entries_split_into_two_4_line_blocks():
     assert all(len(line) == 27 for line in entries[0])
     assert len(entries[1]) == 3
     assert all(len(line) == 27 for line in entries[1])
+
+
+def test_recognition_be_001_2_s1_entry_with_digits_1_through_9_is_recognised():
+    # GIVEN an entry whose 3 lines of 27 characters are:
+    entry = [
+        "    _  _     _  _  _  _  _ ",
+        "  | _| _||_||_ |_   ||_||_|",
+        "  ||_  _|  | _||_|  ||_| _|",
+    ]
+
+    # WHEN Recognition converts the patterns to numeric digits
+    account_number = recognize_digits(entry)
+
+    # THEN the recognised account number is 123456789
+    assert account_number == "123456789"
