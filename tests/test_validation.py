@@ -1,4 +1,4 @@
-from bankocr.validation import checksum_passes, weighted_sum
+from bankocr.validation import assign_status, checksum_passes, weighted_sum
 
 
 def test_validation_be_001_1_s1_checksum_passes():
@@ -27,3 +27,14 @@ def test_validation_be_001_1_s2_checksum_fails():
     assert total == 222
     # AND 222 mod 11 is 2, so the checksum fails
     assert passes is False
+
+
+def test_validation_be_001_2_s1_valid_number_has_no_marker():
+    # GIVEN a recognised account number 345882865
+    digits = "345882865"
+
+    # WHEN the validation status is assigned
+    status = assign_status(digits)
+
+    # THEN the number is valid and has no marker
+    assert status == ""

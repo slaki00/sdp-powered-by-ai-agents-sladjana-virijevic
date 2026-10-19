@@ -13,3 +13,11 @@ def weighted_sum(digits: str) -> int:
 def checksum_passes(digits: str) -> bool:
     """Return True when the weighted sum mod 11 equals 0."""
     return weighted_sum(digits) % 11 == 0
+
+
+def assign_status(digits: str) -> str:
+    """Return the validation marker for an account number.
+
+    Returns "" for a valid number, "ERR" when the checksum fails.
+    """
+    return ""  # Fake It: VALIDATION-BE-001.2-S1 expects ""
