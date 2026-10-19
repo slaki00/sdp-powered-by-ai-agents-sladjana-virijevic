@@ -19,6 +19,7 @@ For EVERY scenario, follow this exact sequence:
 - `<scenario id>` is the Scenario ID from the story bundle, in lowercase, with `-` and `.` replaced by `_`
 - `<behavior>` is the scenario title from the story bundle, written as a short sentence in lowercase with `_`
 - One test per scenario; the test file is named after the bounded context: `tests/test_<context>.py`
+- Every line, including test names and comments, has at most 88 characters (ruff E501). Shorten the `<behavior>` part of a long name; wrap a long comment over two lines and keep the exact scenario text
 
 Example: scenario `VALIDATION-BE-001.1-S1`, title "Checksum passes" → `tests/test_validation.py::test_validation_be_001_1_s1_checksum_passes`
 
@@ -56,7 +57,7 @@ Choose the pattern that makes the RED test GREEN with the least code:
 - **Triangulate**: when a second scenario of the same sub-story uses a different input (for example a checksum that passes and one that fails), write that test next. The fake constant can no longer satisfy both tests, so now write the general implementation. Abstract only when there are two or more examples
 - **Obvious Implementation**: when you are sure how to implement it, write the real code directly. If the test is unexpectedly RED, stop, tell the user, and fall back to Fake It
 
-Current state: `VALIDATION-BE-001.1-S1` is implemented with Fake It (`weighted_sum` returns 231, `checksum_passes` returns True). The next scenario, `VALIDATION-BE-001.1-S2` (sum 222, fails), triangulates it.
+Before writing a new test, read the current code and `git log` to see which scenarios are done and which functions still return a Fake It constant. A Fake It constant is generalized only by a test with a different input.
 
 ## Refactoring Checklist
 
@@ -96,6 +97,7 @@ Example: `#5 feat(validation): implement VALIDATION-BE-001.1-S2 checksum fails`
 - The volume mounts the current code into the container, so no rebuild is needed for code or test changes
 - Rebuild the image with `docker build -t kata-tests .` only when `requirements.txt` or the `Dockerfile` changes
 - Read the hook output to confirm RED or GREEN; do not guess
+- Never run pytest with a local Python. If you cannot run the tests, stop and ask the user to run them; never decide RED or GREEN by inspection
 
 ## Execution Order
 
@@ -115,3 +117,5 @@ Always implement in this order:
 - ALWAYS commit when a test goes GREEN
 - Use GIVEN-WHEN-THEN comments in every test
 - Reference Story ID and Scenario ID in test names and commits
+- Implement only the behavior of the current scenario. Do not add code for another scenario or story (for example a damaged entry, an unreadable digit `?` or a digit that is not in the current test); that behavior gets its own failing test first
+- Use the terms and the British spelling from `architecture/12-glossary.md` (recognise, recognised)
