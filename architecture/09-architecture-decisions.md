@@ -105,3 +105,52 @@ library.
   Python 3.12 and the program.
 - (−) pytest is an external package, so it must be pinned and kept up to date
   for security and compatibility.
+
+## ADR-004: Docker commands and CLI defaults
+
+**Status:** Accepted
+
+**Context:**
+ADR-002 decided to package BankOCR as a Docker image and run it with a mounted
+volume, but did not record the exact build and run commands or the default file
+paths. ADR-003's rationale states that the default CMD can run pytest, because
+the Module 4 starter (`cicd-agent.json`) required it. Module 6 grades
+"docker build && docker run" as a functional kata, which means `docker run`
+must run the kata, not pytest. Chapter 7.3 confirms that the container starts a
+single CLI process. A new default CMD is therefore needed, along with a
+documented way to run tests.
+
+**Decision:**
+- ADR-003 stays Accepted; this ADR replaces only its point that the default CMD
+  runs pytest.
+- The image is built with `docker build -t bankocr .`. The image name `bankocr`
+  replaces `kata-tests` from Module 4.
+- The Operator runs the kata with
+  `docker run --rm -v "$(pwd)/data":/data bankocr`.
+- The data folder is mounted at `/data` inside the container.
+- The CLI accepts two arguments: the input file path and the output file path.
+  Without arguments, it uses `/data/scan.txt` as the input file and
+  `/data/result.txt` as the output file.
+- Tests are run with `docker run --rm --entrypoint pytest bankocr`.
+- pytest stays a development dependency, pinned in `requirements.txt`.
+
+**Rationale:**
+- Module 6 grades "docker build && docker run" as a functional kata, so
+  `docker run` must start the CLI process, not pytest.
+- Chapter 7.3 states that the container starts a single CLI process, which is
+  consistent with the CLI being the default entry point.
+- The mount point `/data` is documented here as required by ADR-002.
+- Default paths `/data/scan.txt` and `/data/result.txt` match the mount point
+  and spare the Operator from typing paths on every run.
+- Keeping `--entrypoint pytest` for tests preserves ADR-003: pytest remains in
+  the image and tests can still run with a single Docker command.
+
+**Consequences:**
+- (+) The Operator can run the kata with a single `docker run` command.
+- (+) The mount point and default file names are documented in one place.
+- (+) Tests can still run inside the same image without a separate test image.
+- (−) The CI workflow, the docker-test pre-commit hook and the TDD/BDD agent
+  hook all use `docker run --rm kata-tests` and must be updated to use
+  `docker run --rm --entrypoint pytest bankocr`.
+- (−) If the Operator places files under different names, they must pass the
+  paths explicitly as arguments.
