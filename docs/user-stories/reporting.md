@@ -97,9 +97,9 @@ Given the output file path from the CLI Entry Point, write one formatted line pe
 
 ### REPORTING-INFRA-001.1: Package Reporting & Correction in the BankOCR Docker image
 
-The Reporting & Correction module is part of the BankOCR Docker image and runs with the Python 3.12 standard library only.
+The Reporting & Correction module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001 and ADR-002; `architecture/07-deployment-view.md`
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-003; `architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Reporting runs inside the container
 
@@ -161,14 +161,19 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 
 Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
 
+### Test environment
+
+See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by all stories and is described once in the Recognition bundle.
+
 ## Implementation Order
 
 1. REPORTING-INFRA-001.1: Package Reporting & Correction in the BankOCR Docker image
 2. REPORTING-INFRA-001.2: File storage in the mounted data folder
 3. REPORTING-INFRA-001.3: Monitoring through standard error
-4. REPORTING-BE-001.1: Format each entry as a result line
-5. REPORTING-BE-001.2: Write all result lines to the result file
-6. REPORTING-STORY-001-S1: end-to-end check of the whole story
+4. Test environment (see RECOGNITION-INFRA-001.4)
+5. REPORTING-BE-001.1: Format each entry as a result line
+6. REPORTING-BE-001.2: Write all result lines to the result file
+7. REPORTING-STORY-001-S1: end-to-end check of the whole story
 
 ## Traceability
 
@@ -178,6 +183,6 @@ Not applicable. The CLI Entry Point runs the modules in a fixed order, without e
 | REPORTING-BE-001.1-S1 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "345882865" |
 | REPORTING-BE-001.1-S2 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "664371495 ERR" |
 | REPORTING-BE-001.2-S1 | 5.3 Reporting & Correction; 5.4; 8.4 File I/O | REPORTING-BE-001.2 | Result file contains two lines: "345882865" and "664371495 ERR" |
-| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002; 7 Deployment View | REPORTING-INFRA-001.1 | Result file in mounted folder has "345882865" and "664371495 ERR"; container exits 0 |
+| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-003; 7 Deployment View | REPORTING-INFRA-001.1 | Result file in mounted folder has "345882865" and "664371495 ERR"; container exits 0 |
 | REPORTING-INFRA-001.2-S1 | 9 ADR-001; 7.1 Infrastructure (Data Folder) | REPORTING-INFRA-001.2 | Result file created in data folder with "345882865" and "664371495 ERR" |
 | REPORTING-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | REPORTING-INFRA-001.3 | Nothing on standard error; result file is the only file written |
