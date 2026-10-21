@@ -109,43 +109,44 @@ Given an entry of 3 lines of 27 characters, match each 3-by-3 character grid aga
 
 The Recognition module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-003; `architecture/07-deployment-view.md`
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Recognition runs inside the container
 
 **Scenario ID**: RECOGNITION-INFRA-001.1-S1
 
 **GIVEN**
-* The BankOCR Docker image
-* A folder mounted as a volume with a scan file containing one entry representing 123456789
+* The BankOCR image has been built with `docker build -t bankocr .`
+* A `data` folder on the local machine contains a `scan.txt` with one entry representing 123456789
 
 **WHEN**
-* The Operator starts the container
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
-* The result file in the mounted folder contains "123456789" with no marker
+* The container reads `/data/scan.txt` and writes `/data/result.txt`
+* `data/result.txt` on the local machine contains "123456789" with no marker
 * The container exits with code 0
 
 ### RECOGNITION-INFRA-001.2: File storage in the mounted data folder
 
 The scan file and the result file are plain text files in a data folder on the local machine, mounted into the container as a volume. There is no database.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
 
 #### SCENARIO 1: Scan file is read from the mounted data folder
 
 **Scenario ID**: RECOGNITION-INFRA-001.2-S1
 
 **GIVEN**
-* A data folder on the local machine with a scan file containing one entry representing 345882865
-* The data folder is mounted into the container
+* A `data` folder on the local machine contains `scan.txt` with one entry representing 345882865
+* No `result.txt` exists in the `data` folder
 
 **WHEN**
-* The Operator starts the container
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
-* A result file is created in the same data folder on the local machine
-* The result file contains "345882865" with no marker
+* `data/result.txt` is created on the local machine
+* `data/result.txt` contains "345882865" with no marker
 
 ### RECOGNITION-INFRA-001.3: Monitoring through standard error
 
@@ -161,11 +162,11 @@ BankOCR writes no log files. Diagnostic messages go to standard error. A recogni
 * A scan file containing one entry representing 123456789 where all digits are recognised
 
 **WHEN**
-* The Operator runs BankOCR
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
 * Nothing is written to standard error
-* The result file is the only file written to the data folder
+* `data/result.txt` is the only file written to the data folder
 
 ### Event handling
 
@@ -173,32 +174,32 @@ Not applicable. The CLI Entry Point runs the modules in a fixed order, without e
 
 ### RECOGNITION-INFRA-001.4: Test environment
 
-Tests run locally in Docker, not in the cloud. The Dockerfile builds with `docker build -t kata-tests .` and the test suite runs inside the container with `docker run --rm kata-tests` using pytest. The dependencies from `requirements.txt` are installed in the image. The project structure (`src/bankocr`, `tests/`) supports pytest discovery. The test environment is shared by all stories.
+Tests run locally in Docker, not in the cloud. The image is built with `docker build -t bankocr .` and the test suite runs inside the same image with `docker run --rm --entrypoint pytest bankocr`. The dependencies from `requirements.txt` are installed in the image. The project structure (`src/bankocr`, `tests/`) supports pytest discovery. The test environment is shared by all stories.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-003; `architecture/08-cross-cutting-concepts.md`, 8.5 Testing
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-003, ADR-004; `architecture/08-cross-cutting-concepts.md`, 8.5 Testing
 
-#### SCENARIO 1: Dockerfile builds the test image
+#### SCENARIO 1: Dockerfile builds the bankocr image
 
 **Scenario ID**: RECOGNITION-INFRA-001.4-S1
 
 **GIVEN**
-* The project root directory containing the Dockerfile
+* The project root directory contains the Dockerfile
 
 **WHEN**
-* `docker build -t kata-tests .` is run
+* `docker build -t bankocr .` is run
 
 **THEN**
-* The Docker image `kata-tests` is built successfully
+* The Docker image `bankocr` is built successfully
 
 #### SCENARIO 2: Test suite runs inside the container with pytest
 
 **Scenario ID**: RECOGNITION-INFRA-001.4-S2
 
 **GIVEN**
-* The `kata-tests` Docker image is built
+* The `bankocr` Docker image has been built with `docker build -t bankocr .`
 
 **WHEN**
-* `docker run --rm kata-tests` is run
+* `docker run --rm --entrypoint pytest bankocr` is run
 
 **THEN**
 * pytest runs inside the container and executes the tests in `tests/`
@@ -209,23 +210,23 @@ Tests run locally in Docker, not in the cloud. The Dockerfile builds with `docke
 **Scenario ID**: RECOGNITION-INFRA-001.4-S3
 
 **GIVEN**
-* The Dockerfile and `requirements.txt` in the project root
+* The Dockerfile and `requirements.txt` are in the project root
 
 **WHEN**
-* `docker build -t kata-tests .` is run
+* `docker build -t bankocr .` is run
 
 **THEN**
-* The `kata-tests` image contains Python 3.12 and the dependencies listed in `requirements.txt`, including pytest
+* The `bankocr` image contains Python 3.12 and the dependencies listed in `requirements.txt`, including pytest 9.1.1
 
 #### SCENARIO 4: Project structure supports pytest discovery
 
 **Scenario ID**: RECOGNITION-INFRA-001.4-S4
 
 **GIVEN**
-* The project structure with source code in `src/bankocr` and tests in `tests/`
+* The project structure has source code in `src/bankocr` and tests in `tests/`
 
 **WHEN**
-* `docker run --rm kata-tests` is run
+* `docker run --rm --entrypoint pytest bankocr` is run
 
 **THEN**
 * pytest collects the tests in `tests/`, and the tests can import the bankocr package from `src/` because the image sets PYTHONPATH to /app/src
@@ -248,10 +249,10 @@ Tests run locally in Docker, not in the cloud. The Dockerfile builds with `docke
 | RECOGNITION-BE-001.1-S1 | 5.3 Recognition; 5.4; 8.4 File I/O Conventions | RECOGNITION-BE-001.1 | Two entries identified, each with 3 lines of 27 characters |
 | RECOGNITION-BE-001.2-S1 | 5.3 Recognition; 1.2 F1; 11 R1 | RECOGNITION-BE-001.2 | Recognised account number is 123456789 |
 | RECOGNITION-BE-001.2-S2 | 5.3 Recognition; 1.2 F1; 11 R1 | RECOGNITION-BE-001.2 | Recognised account number is 490867715 |
-| RECOGNITION-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-003; 7 Deployment View | RECOGNITION-INFRA-001.1 | Result file contains "123456789" with no marker; container exits with code 0 |
-| RECOGNITION-INFRA-001.2-S1 | 9 ADR-001; 7.1 Infrastructure (Data Folder) | RECOGNITION-INFRA-001.2 | Result file created in data folder, contains "345882865" with no marker |
-| RECOGNITION-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | RECOGNITION-INFRA-001.3 | Nothing on standard error; result file is the only file written |
-| RECOGNITION-INFRA-001.4-S1 | 9 ADR-003; 8.5 Testing | RECOGNITION-INFRA-001.4 | Docker image `kata-tests` is built successfully |
-| RECOGNITION-INFRA-001.4-S2 | 9 ADR-003; 8.5 Testing | RECOGNITION-INFRA-001.4 | pytest runs inside the container and executes the tests in `tests/`; container exits with code 0 when all tests pass |
-| RECOGNITION-INFRA-001.4-S3 | 9 ADR-003; 8.5 Testing | RECOGNITION-INFRA-001.4 | Image contains Python 3.12 and dependencies from `requirements.txt`, including pytest |
-| RECOGNITION-INFRA-001.4-S4 | 9 ADR-003; 8.5 Testing | RECOGNITION-INFRA-001.4 | pytest collects tests in `tests/` and tests can import bankocr from `src/` because PYTHONPATH is /app/src |
+| RECOGNITION-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | RECOGNITION-INFRA-001.1 | data/result.txt contains "123456789" with no marker; container exits with code 0 |
+| RECOGNITION-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | RECOGNITION-INFRA-001.2 | data/result.txt is created and contains "345882865" with no marker |
+| RECOGNITION-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | RECOGNITION-INFRA-001.3 | Nothing on standard error; data/result.txt is the only file written to the data folder |
+| RECOGNITION-INFRA-001.4-S1 | 9 ADR-003, ADR-004; 8.5 Testing | RECOGNITION-INFRA-001.4 | Docker image `bankocr` is built successfully |
+| RECOGNITION-INFRA-001.4-S2 | 9 ADR-003, ADR-004; 8.5 Testing | RECOGNITION-INFRA-001.4 | pytest runs inside the container and executes the tests in `tests/`; container exits with code 0 when all tests pass |
+| RECOGNITION-INFRA-001.4-S3 | 9 ADR-003, ADR-004; 8.5 Testing | RECOGNITION-INFRA-001.4 | `bankocr` image contains Python 3.12 and dependencies from `requirements.txt`, including pytest 9.1.1 |
+| RECOGNITION-INFRA-001.4-S4 | 9 ADR-003, ADR-004; 8.5 Testing | RECOGNITION-INFRA-001.4 | pytest collects tests in `tests/` and tests can import bankocr from `src/` because PYTHONPATH is /app/src |

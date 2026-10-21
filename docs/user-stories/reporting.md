@@ -99,43 +99,44 @@ Given the output file path from the CLI Entry Point, write one formatted line pe
 
 The Reporting & Correction module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-003; `architecture/07-deployment-view.md`
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Reporting runs inside the container
 
 **Scenario ID**: REPORTING-INFRA-001.1-S1
 
 **GIVEN**
-* The BankOCR Docker image
-* A folder mounted as a volume with a scan file containing 345882865 and 664371495
+* The BankOCR image has been built with `docker build -t bankocr .`
+* A `data` folder on the local machine contains a `scan.txt` with two entries representing 345882865 and 664371495
 
 **WHEN**
-* The Operator starts the container
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
-* The result file in the mounted folder contains "345882865" on line 1 and "664371495 ERR" on line 2
+* The container reads `/data/scan.txt` and writes `/data/result.txt`
+* `data/result.txt` on the local machine contains "345882865" on line 1 and "664371495 ERR" on line 2
 * The container exits with code 0
 
 ### REPORTING-INFRA-001.2: File storage in the mounted data folder
 
 The scan file and the result file are plain text files in a data folder on the local machine, mounted into the container as a volume. There is no database.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
 
 #### SCENARIO 1: Result file is written to the mounted data folder
 
 **Scenario ID**: REPORTING-INFRA-001.2-S1
 
 **GIVEN**
-* A data folder on the local machine with a scan file containing 345882865 and 664371495
-* The data folder is mounted into the container
+* A `data` folder on the local machine contains `scan.txt` with two entries representing 345882865 and 664371495
+* No `result.txt` exists in the `data` folder
 
 **WHEN**
-* The Operator starts the container
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
-* A result file is created in the same data folder on the local machine
-* The result file contains "345882865" on line 1 and "664371495 ERR" on line 2
+* `data/result.txt` is created on the local machine
+* `data/result.txt` contains "345882865" on line 1 and "664371495 ERR" on line 2
 
 ### REPORTING-INFRA-001.3: Monitoring through standard error
 
@@ -151,11 +152,11 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 * A scan file containing 345882865 and 664371495
 
 **WHEN**
-* The Operator runs BankOCR
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
 * Nothing is written to standard error
-* The result file is the only file written to the data folder
+* `data/result.txt` is the only file written to the data folder
 
 ### Event handling
 
@@ -183,6 +184,6 @@ See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by
 | REPORTING-BE-001.1-S1 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "345882865" |
 | REPORTING-BE-001.1-S2 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "664371495 ERR" |
 | REPORTING-BE-001.2-S1 | 5.3 Reporting & Correction; 5.4; 8.4 File I/O | REPORTING-BE-001.2 | Result file contains two lines: "345882865" and "664371495 ERR" |
-| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-003; 7 Deployment View | REPORTING-INFRA-001.1 | Result file in mounted folder has "345882865" and "664371495 ERR"; container exits 0 |
-| REPORTING-INFRA-001.2-S1 | 9 ADR-001; 7.1 Infrastructure (Data Folder) | REPORTING-INFRA-001.2 | Result file created in data folder with "345882865" and "664371495 ERR" |
-| REPORTING-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | REPORTING-INFRA-001.3 | Nothing on standard error; result file is the only file written |
+| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | REPORTING-INFRA-001.1 | data/result.txt contains "345882865" on line 1 and "664371495 ERR" on line 2; container exits with code 0 |
+| REPORTING-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | REPORTING-INFRA-001.2 | data/result.txt is created and contains "345882865" on line 1 and "664371495 ERR" on line 2 |
+| REPORTING-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | REPORTING-INFRA-001.3 | Nothing on standard error; data/result.txt is the only file written to the data folder |
