@@ -20,13 +20,26 @@ No server, cloud service or network connection is required.
 
 ## 7.3 How It Runs
 
-1. The Operator places the scan file in a folder on the local machine.
-2. The Operator starts the BankOCR container with Docker, mounting that folder
-   as a volume into the container.
-3. Docker runs the container, which starts a single CLI process.
-4. The CLI reads the scan file and writes the result file through the mounted
-   volume. Python 3.12 is inside the Docker image, so no Python installation is
-   needed on the local machine.
-5. When the CLI finishes, the container exits.
-6. The Operator reviews the result file in the same folder on the local
+The image is built once with:
+
+    docker build -t bankocr .
+
+The Operator runs the kata with (ADR-002, ADR-004):
+
+    docker run --rm -v "$(pwd)/data":/data bankocr
+
+1. The Operator places the scan file in the `data` folder on the local machine.
+2. The Operator runs the command above. Docker mounts the `data` folder at
+   `/data` inside the container and starts a single CLI process.
+3. The CLI reads `/data/scan.txt` and writes `/data/result.txt` by default. If
+   the Operator passes two arguments (input path, output path), those paths are
+   used instead.
+4. Python 3.12 is inside the Docker image, so no Python installation is needed
+   on the local machine.
+5. When the CLI finishes, the container exits and is removed (`--rm`).
+6. The Operator reviews the result file in the `data` folder on the local
    machine.
+
+To run the tests:
+
+    docker run --rm --entrypoint pytest bankocr
