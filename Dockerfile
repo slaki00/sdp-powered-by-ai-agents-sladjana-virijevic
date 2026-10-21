@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ src/
 COPY tests/ tests/
+COPY pyproject.toml .
 
 # Make the bankocr package importable from src/
 ENV PYTHONPATH=/app/src
