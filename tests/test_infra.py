@@ -87,3 +87,37 @@ def test_recognition_infra_001_3_s1_recognised_entries_produce_no_diagnostic_mes
     # AND data/result.txt is the only file written to the data folder
     written = [p.name for p in tmp_path.iterdir() if p != scan_file]
     assert written == ["result.txt"]
+
+
+def test_recognition_story_001_s1_multiple_entries_recognised_in_one_scan_file(
+    tmp_path,
+):
+    # GIVEN a scan file with two entries representing 123456789 and 345882865
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n"
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file has two lines
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    # AND line 1 is "123456789" with no marker
+    assert lines[0] == "123456789"
+    # AND line 2 is "345882865" with no marker
+    assert lines[1] == "345882865"
