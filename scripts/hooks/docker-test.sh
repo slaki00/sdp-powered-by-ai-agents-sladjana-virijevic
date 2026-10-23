@@ -16,12 +16,12 @@ fi
 
 echo "🐳 Building Docker image and running tests..."
 
-if ! docker build -t kata-tests-precommit . -q > /dev/null 2>&1; then
+if ! docker build -t bankocr-precommit . -q > /dev/null 2>&1; then
     echo "❌ Docker build failed. Fix the build before committing."
     exit 1
 fi
 
-if ! docker run --rm kata-tests-precommit; then
+if ! docker run --rm --entrypoint pytest bankocr-precommit; then
     echo "❌ Tests failed inside Docker. Fix tests before committing."
     exit 1
 fi

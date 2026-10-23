@@ -17,7 +17,7 @@
     "postToolUse": [
       {
         "matcher": "fs_write",
-                "command": "docker run --rm -v \"$(pwd)\":/app kata-tests 2>&1 | tail -20"
+                "command": "docker run --rm -v \"$(pwd)\":/app --entrypoint pytest bankocr 2>&1 | tail -20"
       }
     ]
   }

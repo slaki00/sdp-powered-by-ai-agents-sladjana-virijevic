@@ -35,9 +35,9 @@ jobs:
         with:
           context: .
           load: true
-          tags: kata-tests
+          tags: bankocr
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Run tests
-        run: docker run --rm kata-tests
+        run: docker run --rm --entrypoint pytest bankocr
