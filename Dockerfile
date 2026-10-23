@@ -20,5 +20,5 @@ ENV PYTHONPATH=/app/src
 # Run as the non-root user
 USER appuser
 
-# Run tests by default
-CMD ["pytest", "-p", "no:cacheprovider", "tests/", "-v", "--tb=short"]
+# Run the CLI by default; tests run with --entrypoint pytest (ADR-004)
+ENTRYPOINT ["python", "-m", "bankocr"]
