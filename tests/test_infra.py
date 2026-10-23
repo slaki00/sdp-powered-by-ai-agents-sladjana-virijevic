@@ -121,3 +121,31 @@ def test_recognition_story_001_s1_multiple_entries_recognised_in_one_scan_file(
     assert lines[0] == "123456789"
     # AND line 2 is "345882865" with no marker
     assert lines[1] == "345882865"
+
+
+def test_validation_infra_001_1_s1_validation_runs_inside_the_container(tmp_path):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains a scan.txt with one entry representing 345882865
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the container reads /data/scan.txt and writes /data/result.txt
+    assert result_file.exists()
+    # AND data/result.txt contains "345882865" with no marker
+    assert result_file.read_text(encoding="utf-8").splitlines() == ["345882865"]
+    # AND the container exits with code 0
+    assert result.returncode == 0
