@@ -18,7 +18,7 @@ Stories are ordered by priority: a story is placed after the stories it depends 
 
 | # | Story ID | Story | Source | Priority | Status | Implementation |
 |---|----------|-------|--------|----------|--------|----------------|
-| 1 | RECOGNITION-STORY-001 | Read each entry as a 9-digit account number | F1 | Core | Done | BE done; end-to-end not started |
+| 1 | RECOGNITION-STORY-001 | Read each entry as a 9-digit account number | F1 | Core | Done | Done (#5, #18) |
 | 2 | VALIDATION-STORY-001 | Validate each number with the checksum, mark ERR when it fails | F2 | Core | Done | BE done (#11); end-to-end not started |
 | 3 | REPORTING-STORY-001 | Write the result file, one number per line with its marker | F3 | Core | Done | BE done (#13); end-to-end not started |
 | 4 | RECOGNITION-STORY-002 | Mark unreadable digits with ? and continue with the next entry | F1, Robustness | Supporting | Not started | Not started |
