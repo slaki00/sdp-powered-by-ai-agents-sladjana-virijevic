@@ -149,3 +149,30 @@ def test_validation_infra_001_1_s1_validation_runs_inside_the_container(tmp_path
     assert result_file.read_text(encoding="utf-8").splitlines() == ["345882865"]
     # AND the container exits with code 0
     assert result.returncode == 0
+
+
+def test_validation_infra_001_2_s1_result_with_err_stored_in_data_folder(tmp_path):
+    # GIVEN a data folder contains scan.txt with one entry representing 664371495
+    # AND no result.txt exists in the data folder
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _     _  _        _  _ \n"
+        "|_ |_ |_| _|  |  ||_||_||_ \n"
+        "|_||_|  | _|  |  |  | _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+    assert not result_file.exists()
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt is created on the local machine
+    assert result_file.exists()
+    # AND data/result.txt contains "664371495 ERR"
+    assert result_file.read_text(encoding="utf-8").splitlines() == ["664371495 ERR"]
