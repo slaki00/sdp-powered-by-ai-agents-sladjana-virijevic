@@ -594,3 +594,32 @@ def test_recognition_infra_003_1_s1_no_scan_txt_message_on_stderr_exits_nonzero(
     assert result.returncode != 0
     # AND no result.txt is created in the data folder
     assert not (tmp_path / "result.txt").exists()
+
+
+def test_recognition_infra_003_1_s2_scan_unreadable_message_on_stderr_exits_nonzero(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND the data folder on the local machine contains a scan.txt with read
+    # permissions removed
+    scan_path = tmp_path / "scan.txt"
+    scan_path.write_text("", encoding="utf-8")
+    scan_path.chmod(0o000)
+    result_path = str(tmp_path / "result.txt")
+
+    # WHEN the Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_path), result_path],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN a message is written to standard error
+    assert result.stderr != ""
+    # AND the message names the scan file and is not a Python traceback
+    assert str(scan_path) in result.stderr
+    assert "Traceback" not in result.stderr
+    # AND the container exits with a non-zero status
+    assert result.returncode != 0
+    # AND no result.txt is created in the data folder
+    assert not (tmp_path / "result.txt").exists()
