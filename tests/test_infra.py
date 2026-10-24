@@ -310,3 +310,35 @@ def test_reporting_infra_001_2_s1_result_file_written_to_mounted_data_folder(
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines[0] == "345882865"
     assert lines[1] == "664371495 ERR"
+
+
+def test_reporting_infra_001_3_s1_err_entries_produce_no_diagnostic_messages(
+    tmp_path,
+):
+    # GIVEN a scan file containing 345882865 and 664371495
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n"
+        " _  _     _  _        _  _ \n"
+        "|_ |_ |_| _|  |  ||_||_||_ \n"
+        "|_||_|  | _|  |  |  | _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN nothing is written to standard error
+    assert result.stderr == ""
+    # AND data/result.txt is the only file written to the data folder
+    written = [p.name for p in tmp_path.iterdir() if p != scan_file]
+    assert written == ["result.txt"]
