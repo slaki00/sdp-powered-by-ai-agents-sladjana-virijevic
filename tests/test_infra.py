@@ -672,3 +672,33 @@ def test_recognition_story_003_s2_scan_file_exists_but_cannot_be_read(tmp_path):
     assert result.returncode != 0
     # AND no result file is created
     assert not (tmp_path / "result.txt").exists()
+
+
+def test_reporting_infra_002_1_s1_bankocr_corrects_err_entry_inside_container(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains a scan.txt with one entry representing 664371495
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _     _  _        _  _ \n"
+        "|_ |_ |_| _|  |  ||_||_||_ \n"
+        "|_||_|  | _|  |  |  | _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt on the local machine contains one line: "664371485"
+    # with no marker
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["664371485"]
+    # AND the container exits with code 0
+    assert result.returncode == 0

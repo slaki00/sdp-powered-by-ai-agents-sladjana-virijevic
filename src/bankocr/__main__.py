@@ -10,9 +10,9 @@ Defaults (ADR-004):
 
 import sys
 
-from bankocr.recognition import recognize_digits, split_into_entries
-from bankocr.reporting import format_result_line, write_result_file
-from bankocr.validation import assign_status
+from bankocr.recognition import DIGIT_PATTERNS, recognize_digits, split_into_entries
+from bankocr.reporting import correct_entry, format_result_line, write_result_file
+from bankocr.validation import assign_status, checksum_passes
 
 
 def main(scan_path: str, result_path: str) -> None:
@@ -33,6 +33,10 @@ def main(scan_path: str, result_path: str) -> None:
     for entry in entries:
         account_number = recognize_digits(entry)
         status = assign_status(account_number)
+        # REPORTING-BE-002.1: attempt correction for ERR and ILL entries
+        account_number, status = correct_entry(
+            entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+        )
         lines.append(format_result_line(account_number, status))
 
     write_result_file(lines, result_path)
