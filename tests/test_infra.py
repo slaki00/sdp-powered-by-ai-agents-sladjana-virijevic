@@ -794,3 +794,132 @@ def test_reporting_story_002_s3_ill_entry_with_no_valid_alternative_keeps_ill(
     # THEN the result file contains one line: "?00000000 ILL"
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines == ["?00000000 ILL"]
+
+
+def test_reporting_infra_003_1_s1_bankocr_marks_amb_entry_inside_container(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains a scan.txt with one entry representing 490067715:
+    #     _  _  _  _  _  _     _
+    # |_||_|| || ||_   |  |  ||_
+    #   | _||_||_||_|  |  |  | _|
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _     _ \n"
+        "|_||_|| || ||_   |  |  ||_ \n"
+        "  | _||_||_||_|  |  |  | _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt on the local machine contains one line: "490067715 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["490067715 AMB"]
+    # AND the container exits with code 0
+    assert result.returncode == 0
+
+
+def test_reporting_story_003_s1_err_entry_with_more_than_one_alt_marked_amb(
+    tmp_path,
+):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (Recognition produces "490067715"; Validation marks it ERR):
+    #     _  _  _  _  _  _     _
+    # |_||_|| || ||_   |  |  ||_
+    #   | _||_||_||_|  |  |  | _|
+    # AND 490067715 fails the checksum: weighted sum 194, 194 mod 11 = 7
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _     _ \n"
+        "|_||_|| || ||_   |  |  ||_ \n"
+        "  | _||_||_||_|  |  |  | _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN Reporting & Correction finds three alternatives: 490067115,
+    # 490067719 and 490867715
+    # AND because more than one alternative passes, the entry is marked AMB
+    # AND the result file contains one line: "490067715 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["490067715 AMB"]
+
+
+def test_reporting_story_003_s2_err_entry_888888888_marked_amb(tmp_path):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (Recognition produces "888888888"; Validation marks it ERR):
+    #  _  _  _  _  _  _  _  _  _
+    # |_||_||_||_||_||_||_||_||_|
+    # |_||_||_||_||_||_||_||_||_|
+    # AND 888888888 fails the checksum: weighted sum 360, 360 mod 11 = 8
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _  _  _  _  _  _  _  _ \n"
+        "|_||_||_||_||_||_||_||_||_|\n"
+        "|_||_||_||_||_||_||_||_||_|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN Reporting & Correction finds three alternatives: 888886888,
+    # 888888880 and 888888988
+    # AND because more than one alternative passes, the entry is marked AMB
+    # AND the result file contains one line: "888888888 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["888888888 AMB"]
+
+
+def test_reporting_story_003_s3_err_entry_555555555_marked_amb(tmp_path):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (Recognition produces "555555555"; Validation marks it ERR):
+    #  _  _  _  _  _  _  _  _  _
+    # |_ |_ |_ |_ |_ |_ |_ |_ |_
+    #  _| _| _| _| _| _| _| _| _|
+    # AND 555555555 fails the checksum: weighted sum 225, 225 mod 11 = 5
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _  _  _  _  _  _  _  _ \n"
+        "|_ |_ |_ |_ |_ |_ |_ |_ |_ \n"
+        " _| _| _| _| _| _| _| _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN Reporting & Correction finds two alternatives: 555655555, 559555555
+    # AND because more than one alternative passes, the entry is marked AMB
+    # AND the result file contains one line: "555555555 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["555555555 AMB"]

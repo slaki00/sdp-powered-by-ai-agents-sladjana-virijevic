@@ -437,3 +437,236 @@ See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by
 | REPORTING-BE-002.1-S2 | 1.2 F4; 5.3; 6.2; 8.2 | REPORTING-BE-002.1 | Result is "123456789" with no marker; sum 165, 165 mod 11 = 0 |
 | REPORTING-BE-002.2-S1 | 1.2 F4; 5.3; 8.1; 8.2 | REPORTING-BE-002.2 | Result is "?00000000 ILL" |
 | REPORTING-INFRA-002.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | REPORTING-INFRA-002.1 | data/result.txt contains "664371485" with no marker; container exits with code 0 |
+
+---
+
+## REPORTING-STORY-003: Mark AMB when more than one alternative passes
+
+AS AN Operator I WANT BankOCR to mark an ERR or ILL entry as AMB when more than one alternative interpretation passes the checksum SO THAT I know the entry is genuinely ambiguous and I must resolve it manually
+
+**Priority:** Supporting
+
+**Architecture references:**
+- `architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
+- `architecture/01-introduction-and-goals.md`, 1.2 F4 Attempt correction
+- `architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
+- `architecture/06-runtime-view.md`, 6.3 Bad Checksum: ERR with Correction
+- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+
+**Out of scope:** replacing an entry with the single valid alternative (REPORTING-STORY-002), writing the result file without correction (REPORTING-STORY-001), the ERR marker for failed checksums (VALIDATION-STORY-001), the ILL marker for numbers with unreadable digits (VALIDATION-STORY-002).
+
+### SCENARIO 1: ERR entry with more than one valid alternative is marked AMB
+
+**Scenario ID**: REPORTING-STORY-003-S1
+
+**GIVEN**
+* A scan file with one entry whose three lines of 27 characters are:
+
+```
+    _  _  _  _  _  _     _ 
+|_||_|| || ||_   |  |  ||_ 
+  | _||_||_||_|  |  |  | _|
+```
+
+* Recognition produces "490067715"; Validation marks it ERR
+* 490067715 fails the checksum: weighted sum 1(5)+2(1)+3(7)+4(7)+5(6)+6(0)+7(0)+8(9)+9(4) = 5+2+21+28+30+0+0+72+36 = 194, 194 mod 11 = 7
+
+**WHEN**
+* The Operator runs BankOCR with the scan file
+
+**THEN**
+* Reporting & Correction finds three alternatives that each pass the checksum: 490067115, 490067719 and 490867715
+* Because more than one alternative passes, the entry is marked AMB
+* The result file contains one line: "490067715 AMB"
+
+### SCENARIO 2: ERR entry 888888888 with more than one valid alternative is marked AMB
+
+**Scenario ID**: REPORTING-STORY-003-S2
+
+**GIVEN**
+* A scan file with one entry whose three lines of 27 characters are:
+
+```
+ _  _  _  _  _  _  _  _  _ 
+|_||_||_||_||_||_||_||_||_|
+|_||_||_||_||_||_||_||_||_|
+```
+
+* Recognition produces "888888888"; Validation marks it ERR
+* 888888888 fails the checksum: weighted sum 1(8)+2(8)+3(8)+4(8)+5(8)+6(8)+7(8)+8(8)+9(8) = 8+16+24+32+40+48+56+64+72 = 360, 360 mod 11 = 8
+
+**WHEN**
+* The Operator runs BankOCR with the scan file
+
+**THEN**
+* Reporting & Correction finds three alternatives that each pass the checksum: 888886888, 888888880 and 888888988
+* Because more than one alternative passes, the entry is marked AMB
+* The result file contains one line: "888888888 AMB"
+
+### SCENARIO 3: ERR entry 555555555 with more than one valid alternative is marked AMB
+
+**Scenario ID**: REPORTING-STORY-003-S3
+
+**GIVEN**
+* A scan file with one entry whose three lines of 27 characters are:
+
+```
+ _  _  _  _  _  _  _  _  _ 
+|_ |_ |_ |_ |_ |_ |_ |_ |_ 
+ _| _| _| _| _| _| _| _| _|
+```
+
+* Recognition produces "555555555"; Validation marks it ERR
+* 555555555 fails the checksum: weighted sum 1(5)+2(5)+3(5)+4(5)+5(5)+6(5)+7(5)+8(5)+9(5) = 5+10+15+20+25+30+35+40+45 = 225, 225 mod 11 = 5
+
+**WHEN**
+* The Operator runs BankOCR with the scan file
+
+**THEN**
+* Reporting & Correction finds two alternatives that each pass the checksum: 555655555 and 559555555
+* Because more than one alternative passes, the entry is marked AMB
+* The result file contains one line: "555555555 AMB"
+
+## FE
+
+Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). The Operator reviews the result file directly as plain text.
+
+## BE
+
+### REPORTING-BE-003.1: Mark an entry AMB when more than one alternative passes the checksum
+
+Given an entry with status ERR or ILL where the correction search (REPORTING-BE-002.1) finds more than one alternative that passes the checksum, Reporting & Correction replaces the ERR or ILL status with AMB. The original number is kept unchanged. No alternative is written; only the AMB marker is appended.
+
+**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F4; `architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+
+#### SCENARIO 1: ERR entry 490067715 becomes AMB
+
+**Scenario ID**: REPORTING-BE-003.1-S1
+
+**GIVEN**
+* An entry whose three lines of 27 characters are:
+
+```
+    _  _  _  _  _  _     _ 
+|_||_|| || ||_   |  |  ||_ 
+  | _||_||_||_|  |  |  | _|
+```
+
+* Recognition produces "490067715" with status ERR
+* 490067715 fails the checksum: weighted sum 194, 194 mod 11 = 7
+* The correction search finds three alternatives that pass the checksum: 490067115 (sum 176, 176 mod 11 = 0), 490067719 (sum 198, 198 mod 11 = 0) and 490867715 (sum 242, 242 mod 11 = 0)
+
+**WHEN**
+* Reporting & Correction evaluates the alternatives
+
+**THEN**
+* The status is changed from ERR to AMB
+* The result for this entry is "490067715 AMB"
+
+#### SCENARIO 2: ERR entry 888888888 becomes AMB
+
+**Scenario ID**: REPORTING-BE-003.1-S2
+
+**GIVEN**
+* An entry whose three lines of 27 characters are:
+
+```
+ _  _  _  _  _  _  _  _  _ 
+|_||_||_||_||_||_||_||_||_|
+|_||_||_||_||_||_||_||_||_|
+```
+
+* Recognition produces "888888888" with status ERR
+* 888888888 fails the checksum: weighted sum 360, 360 mod 11 = 8
+* The correction search finds three alternatives that pass the checksum: 888886888 (sum 352, 352 mod 11 = 0), 888888880 (sum 352, 352 mod 11 = 0) and 888888988 (sum 363, 363 mod 11 = 0)
+
+**WHEN**
+* Reporting & Correction evaluates the alternatives
+
+**THEN**
+* The status is changed from ERR to AMB
+* The result for this entry is "888888888 AMB"
+
+#### SCENARIO 3: ERR entry 555555555 becomes AMB
+
+**Scenario ID**: REPORTING-BE-003.1-S3
+
+**GIVEN**
+* An entry whose three lines of 27 characters are:
+
+```
+ _  _  _  _  _  _  _  _  _ 
+|_ |_ |_ |_ |_ |_ |_ |_ |_ 
+ _| _| _| _| _| _| _| _| _|
+```
+
+* Recognition produces "555555555" with status ERR
+* 555555555 fails the checksum: weighted sum 225, 225 mod 11 = 5
+* The correction search finds two alternatives that pass the checksum: 555655555 (sum 231, 231 mod 11 = 0) and 559555555 (sum 253, 253 mod 11 = 0)
+
+**WHEN**
+* Reporting & Correction evaluates the alternatives
+
+**THEN**
+* The status is changed from ERR to AMB
+* The result for this entry is "555555555 AMB"
+
+## INFRA
+
+### REPORTING-INFRA-003.1: Deployment
+
+See REPORTING-INFRA-001.1. No additional deployment configuration is needed for AMB marking; it is part of the same Reporting & Correction module and Docker image.
+
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+
+#### SCENARIO 1: BankOCR marks an AMB entry inside the container
+
+**Scenario ID**: REPORTING-INFRA-003.1-S1
+
+**GIVEN**
+* The BankOCR image has been built with `docker build -t bankocr .`
+* A `data` folder on the local machine contains a `scan.txt` with one entry whose three lines represent 490067715 (the same drawing as REPORTING-STORY-003-S1)
+
+**WHEN**
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+
+**THEN**
+* `data/result.txt` on the local machine contains one line: "490067715 AMB"
+* The container exits with code 0
+
+### Data store
+
+See REPORTING-INFRA-001.2. There is no database; the scan file and result file are plain text files in the mounted data folder. No change is needed for this story.
+
+### Event handling
+
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+
+### Monitoring
+
+See REPORTING-INFRA-001.3. An AMB entry is a normal result, not an error (`architecture/08-cross-cutting-concepts.md`, 8.1 and 8.3). Reporting & Correction writes nothing to standard error when it marks an entry AMB.
+
+### Test environment
+
+See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by all stories and is described once in the Recognition bundle.
+
+## Implementation Order
+
+1. REPORTING-BE-003.1: Mark an entry AMB when more than one alternative passes the checksum
+2. REPORTING-INFRA-003.1-S1: end-to-end container check; no infrastructure change is needed (the image from REPORTING-INFRA-001.1 is reused)
+3. REPORTING-STORY-003-S1: end-to-end check of 490067715 AMB
+4. REPORTING-STORY-003-S2: end-to-end check of 888888888 AMB
+5. REPORTING-STORY-003-S3: end-to-end check of 555555555 AMB
+
+## Traceability
+
+| Scenario ID | Architecture | Parent story | Testable assertion (THEN) |
+|---|---|---|---|
+| REPORTING-STORY-003-S1 | 5.3 Reporting & Correction; 1.2 F4; 6.3; 8.2 | REPORTING-STORY-003 | Result file contains "490067715 AMB"; three alternatives pass (sums 176, 198, 242; all mod 11 = 0) |
+| REPORTING-STORY-003-S2 | 5.3 Reporting & Correction; 1.2 F4; 6.3; 8.2 | REPORTING-STORY-003 | Result file contains "888888888 AMB"; three alternatives pass (sums 352, 352, 363; all mod 11 = 0) |
+| REPORTING-STORY-003-S3 | 5.3 Reporting & Correction; 1.2 F4; 6.3; 8.2 | REPORTING-STORY-003 | Result file contains "555555555 AMB"; two alternatives pass (sums 231, 253; both mod 11 = 0) |
+| REPORTING-BE-003.1-S1 | 1.2 F4; 5.3; 8.2 | REPORTING-BE-003.1 | Status changed to AMB; result is "490067715 AMB"; sums 176, 198, 242 all mod 11 = 0 |
+| REPORTING-BE-003.1-S2 | 1.2 F4; 5.3; 8.2 | REPORTING-BE-003.1 | Status changed to AMB; result is "888888888 AMB"; sums 352, 352, 363 all mod 11 = 0 |
+| REPORTING-BE-003.1-S3 | 1.2 F4; 5.3; 8.2 | REPORTING-BE-003.1 | Status changed to AMB; result is "555555555 AMB"; sums 231, 253 both mod 11 = 0 |
+| REPORTING-INFRA-003.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | REPORTING-INFRA-003.1 | data/result.txt contains "490067715 AMB"; container exits with code 0 |
