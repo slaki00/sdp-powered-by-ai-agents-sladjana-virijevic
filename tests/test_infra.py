@@ -763,3 +763,34 @@ def test_reporting_story_002_s2_ill_entry_with_one_valid_alternative_is_correcte
     # THEN the result file contains one line: "123456789" with no marker
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines == ["123456789"]
+
+
+def test_reporting_story_002_s3_ill_entry_with_no_valid_alternative_keeps_ill(
+    tmp_path,
+):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (digit position 9 is an all-spaces pattern; Recognition produces
+    # "?00000000" with status ILL):
+    #     _  _  _  _  _  _  _  _
+    #    | || || || || || || || |
+    #    |_||_||_||_||_||_||_||_|
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file contains one line: "?00000000 ILL"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["?00000000 ILL"]
