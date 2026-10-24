@@ -446,3 +446,173 @@ See RECOGNITION-INFRA-001.4.
 | RECOGNITION-BE-002.1-S2 | 5.3 Recognition; 5.4; 8.1; 1.2 F1; 11 R1 | RECOGNITION-BE-002.1 | Output for the entry is "?????????"; no exception raised |
 | RECOGNITION-BE-002.2-S1 | 5.3 Recognition; 5.4; 8.1; 1.3 Robustness; 6.4 | RECOGNITION-BE-002.2 | Two results in order: "?00000000" then "123456789" |
 | RECOGNITION-INFRA-002.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | RECOGNITION-INFRA-002.1 | data/result.txt has two lines: "?00000000 ILL" and "123456789"; container exits with code 0 |
+
+---
+
+## RECOGNITION-STORY-003: Show a clear error when the scan file is missing or unreadable
+
+AS AN Operator I WANT BankOCR to report a clear error message and exit with a non-zero status when the scan file cannot be found or read SO THAT I know immediately what went wrong and can correct the file path or permissions
+
+**Priority:** Supporting
+
+**Architecture references:**
+- `architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
+- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `architecture/11-risks-and-technical-debts.md`, R3
+
+**Out of scope:** unreadable digits and the ? marker (RECOGNITION-STORY-002), bad checksum errors and the ERR marker (VALIDATION-STORY-001), writing the result file (REPORTING-STORY-001), correction and the AMB marker (REPORTING-STORY-002, REPORTING-STORY-003).
+
+### SCENARIO 1: Scan file does not exist
+
+**Scenario ID**: RECOGNITION-STORY-003-S1
+
+**GIVEN**
+* The `data` folder on the local machine contains no `scan.txt`
+
+**WHEN**
+* The Operator runs BankOCR
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The program exits with a non-zero status
+* No result file is created
+
+### SCENARIO 2: Scan file exists but cannot be read
+
+**Scenario ID**: RECOGNITION-STORY-003-S2
+
+**GIVEN**
+* The `data` folder on the local machine contains a `scan.txt` with read permissions removed from the file
+
+**WHEN**
+* The Operator runs BankOCR
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The program exits with a non-zero status
+* No result file is created
+
+## FE
+
+Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). The error message is written to standard error by the CLI Entry Point.
+
+## BE
+
+### RECOGNITION-BE-003.1: Report file-not-found or unreadable-file to standard error and exit
+
+When the CLI Entry Point cannot open the scan file because it does not exist or cannot be read, it writes a message to standard error and exits with a non-zero status. No result file is created.
+
+**Architecture references:**
+- `architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
+- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `architecture/11-risks-and-technical-debts.md`, R3
+
+#### SCENARIO 1: Scan file does not exist: message goes to standard error
+
+**Scenario ID**: RECOGNITION-BE-003.1-S1
+
+**GIVEN**
+* The input file path passed to the CLI Entry Point points to a file that does not exist
+
+**WHEN**
+* The CLI Entry Point attempts to open the scan file
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The CLI Entry Point exits with a non-zero status
+* No result file is created
+
+#### SCENARIO 2: Scan file exists but cannot be read: message goes to standard error
+
+**Scenario ID**: RECOGNITION-BE-003.1-S2
+
+**GIVEN**
+* The input file path passed to the CLI Entry Point points to a file that exists but has read permissions removed
+
+**WHEN**
+* The CLI Entry Point attempts to open the scan file
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The CLI Entry Point exits with a non-zero status
+* No result file is created
+
+## INFRA
+
+### RECOGNITION-INFRA-003.1: Deployment
+
+See RECOGNITION-INFRA-001.1. No additional deployment configuration is needed for file-error handling; it is part of the same BankOCR Docker image and CLI process. The INFRA scenarios below reuse the image from RECOGNITION-INFRA-001.1 and check the BE behaviour inside the container.
+
+**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+
+#### SCENARIO 1: Container reports an error and exits non-zero when the data folder has no scan.txt
+
+**Scenario ID**: RECOGNITION-INFRA-003.1-S1
+
+**GIVEN**
+* The BankOCR image has been built with `docker build -t bankocr .`
+* The `data` folder on the local machine is empty (no `scan.txt`)
+
+**WHEN**
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The container exits with a non-zero status
+* No `result.txt` is created in the `data` folder
+
+#### SCENARIO 2: Container reports an error and exits non-zero when scan.txt has no read permission
+
+**Scenario ID**: RECOGNITION-INFRA-003.1-S2
+
+**GIVEN**
+* The BankOCR image has been built with `docker build -t bankocr .`
+* The `data` folder on the local machine contains a `scan.txt` with read permissions removed
+
+**WHEN**
+* The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+
+**THEN**
+* A message is written to standard error
+* The message names the scan file and is not a Python traceback
+* The container exits with a non-zero status
+* No `result.txt` is created in the `data` folder
+
+### Data store
+
+See RECOGNITION-INFRA-001.2. There is no database; the scan file is a plain text file in the mounted data folder. No change is needed for this story.
+
+### Event handling
+
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+
+### Monitoring
+
+See RECOGNITION-INFRA-001.3. A missing or unreadable scan file is not an entry-specific result; it is a non-entry error reported on standard error as specified in `architecture/08-cross-cutting-concepts.md`, 8.1.
+
+### Test environment
+
+See RECOGNITION-INFRA-001.4.
+
+## Implementation Order
+
+1. RECOGNITION-BE-003.1: Report file-not-found or unreadable-file to standard error and exit
+2. RECOGNITION-INFRA-003.1-S1 and RECOGNITION-INFRA-003.1-S2: no infrastructure change is needed (the image from RECOGNITION-INFRA-001.1 is reused); these scenarios check the BE behaviour inside the container
+3. RECOGNITION-STORY-003-S1: end-to-end check: file does not exist
+4. RECOGNITION-STORY-003-S2: end-to-end check: file cannot be read
+
+## Traceability
+
+| Scenario ID | Architecture | Parent story | Testable assertion (THEN) |
+|-------------|--------------|--------------|---------------------------|
+| RECOGNITION-STORY-003-S1 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-STORY-003-S2 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-BE-003.1-S1 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-BE-003.1-S2 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-INFRA-003.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error that names the scan file, no traceback; container exits non-zero; no result.txt in data folder |
+| RECOGNITION-INFRA-003.1-S2 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error that names the scan file, no traceback; container exits non-zero; no result.txt in data folder |

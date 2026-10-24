@@ -17,8 +17,16 @@ from bankocr.validation import assign_status
 
 def main(scan_path: str, result_path: str) -> None:
     """Read scan_path, recognise and validate each entry, write result_path."""
-    with open(scan_path, encoding="utf-8") as f:
-        scan_content = f.read()
+    try:
+        with open(scan_path, encoding="utf-8") as f:
+            scan_content = f.read()
+    except OSError as exc:
+        # RECOGNITION-BE-003.1: plain message to stderr, no traceback
+        print(
+            f"Error: cannot read scan file '{scan_path}': {exc.strerror}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     entries = split_into_entries(scan_content)
     lines = []
