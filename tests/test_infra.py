@@ -419,3 +419,43 @@ def test_validation_infra_002_1_s1_bankocr_marks_ill_entry_inside_container(
     assert lines[1] == "345882865"
     # AND the container exits with code 0
     assert result.returncode == 0
+
+
+def test_validation_story_002_s1_unreadable_digit_marked_ill_valid_no_marker(
+    tmp_path,
+):
+    # GIVEN a scan file with two entries:
+    # - first: all-spaces grid at digit position 1 and eight 0 patterns at 2-9;
+    #   its three lines of 27 characters are:
+    #       _  _  _  _  _  _  _  _
+    #      | || || || || || || || |
+    #      |_||_||_||_||_||_||_||_|
+    # - second: account number 345882865
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file has two lines
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    # AND line 1 is "?00000000 ILL"
+    assert lines[0] == "?00000000 ILL"
+    # AND line 2 is "345882865" with no marker
+    assert lines[1] == "345882865"
