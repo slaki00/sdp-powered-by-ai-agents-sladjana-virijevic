@@ -75,3 +75,20 @@ def test_recognition_be_002_1_s1_unrecognised_digit_becomes_question_mark():
     # THEN the output for that entry is "?00000000"
     assert account_number == "?00000000"
     # AND no exception is raised; processing of that entry completes normally
+
+
+def test_recognition_be_002_1_s2_all_nine_unrecognised_digits_become_question_marks():
+    # GIVEN an entry where all nine 3-by-3 grids are the all-spaces pattern;
+    # its three lines of 27 characters are:
+    entry = [
+        "                           ",
+        "                           ",
+        "                           ",
+    ]
+
+    # WHEN Recognition converts the patterns of that entry to digits
+    account_number = recognize_digits(entry)
+
+    # THEN the output for that entry is "?????????"
+    assert account_number == "?????????"
+    # AND no exception is raised
