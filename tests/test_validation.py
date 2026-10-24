@@ -75,3 +75,19 @@ def test_validation_be_002_1_s2_nine_unreadable_digits_cause_ill():
     assert status == "ILL"
     # AND no checksum calculation is performed for this entry
     # (verified implicitly: no ValueError raised)
+
+
+def test_validation_be_002_2_s1_ill_entry_passed_on_next_validated_normally():
+    # GIVEN Recognition has produced two results: "?00000000" and "345882865"
+    entries = ["?00000000", "345882865"]
+
+    # WHEN Validation processes both entries
+    results = [assign_status(digits) for digits in entries]
+
+    # THEN Validation returns two results in order
+    assert len(results) == 2
+    # AND the first result is "?00000000" with ILL status
+    assert results[0] == "ILL"
+    # AND the second result is "345882865" with no marker
+    # (checksum passes: weighted sum is 231, 231 mod 11 is 0)
+    assert results[1] == ""
