@@ -646,3 +646,29 @@ def test_recognition_story_003_s1_scan_file_does_not_exist(tmp_path):
     assert result.returncode != 0
     # AND no result file is created
     assert not (tmp_path / "result.txt").exists()
+
+
+def test_recognition_story_003_s2_scan_file_exists_but_cannot_be_read(tmp_path):
+    # GIVEN the data folder on the local machine contains a scan.txt with read
+    # permissions removed from the file
+    scan_path = tmp_path / "scan.txt"
+    scan_path.write_text("", encoding="utf-8")
+    scan_path.chmod(0o000)
+    result_path = str(tmp_path / "result.txt")
+
+    # WHEN the Operator runs BankOCR
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_path), result_path],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN a message is written to standard error
+    assert result.stderr != ""
+    # AND the message names the scan file and is not a Python traceback
+    assert str(scan_path) in result.stderr
+    assert "Traceback" not in result.stderr
+    # AND the program exits with a non-zero status
+    assert result.returncode != 0
+    # AND no result file is created
+    assert not (tmp_path / "result.txt").exists()
