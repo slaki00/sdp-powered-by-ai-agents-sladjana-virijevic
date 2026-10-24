@@ -474,6 +474,7 @@ AS AN Operator I WANT BankOCR to report a clear error message and exit with a no
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The program exits with a non-zero status
 * No result file is created
 
@@ -489,6 +490,7 @@ AS AN Operator I WANT BankOCR to report a clear error message and exit with a no
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The program exits with a non-zero status
 * No result file is created
 
@@ -519,6 +521,7 @@ When the CLI Entry Point cannot open the scan file because it does not exist or 
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The CLI Entry Point exits with a non-zero status
 * No result file is created
 
@@ -534,6 +537,7 @@ When the CLI Entry Point cannot open the scan file because it does not exist or 
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The CLI Entry Point exits with a non-zero status
 * No result file is created
 
@@ -558,6 +562,7 @@ See RECOGNITION-INFRA-001.1. No additional deployment configuration is needed fo
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The container exits with a non-zero status
 * No `result.txt` is created in the `data` folder
 
@@ -574,6 +579,7 @@ See RECOGNITION-INFRA-001.1. No additional deployment configuration is needed fo
 
 **THEN**
 * A message is written to standard error
+* The message names the scan file and is not a Python traceback
 * The container exits with a non-zero status
 * No `result.txt` is created in the `data` folder
 
@@ -604,9 +610,9 @@ See RECOGNITION-INFRA-001.4.
 
 | Scenario ID | Architecture | Parent story | Testable assertion (THEN) |
 |-------------|--------------|--------------|---------------------------|
-| RECOGNITION-STORY-003-S1 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error; non-zero exit status; no result file created |
-| RECOGNITION-STORY-003-S2 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error; non-zero exit status; no result file created |
-| RECOGNITION-BE-003.1-S1 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error; non-zero exit status; no result file created |
-| RECOGNITION-BE-003.1-S2 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error; non-zero exit status; no result file created |
-| RECOGNITION-INFRA-003.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error; container exits non-zero; no result.txt in data folder |
-| RECOGNITION-INFRA-003.1-S2 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error; container exits non-zero; no result.txt in data folder |
+| RECOGNITION-STORY-003-S1 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-STORY-003-S2 | 8.1 Error Handling; 11 R3 | RECOGNITION-STORY-003 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-BE-003.1-S1 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-BE-003.1-S2 | 5.3 CLI Entry Point; 8.1 Error Handling; 11 R3 | RECOGNITION-BE-003.1 | Message on standard error that names the scan file, no traceback; non-zero exit status; no result file created |
+| RECOGNITION-INFRA-003.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error that names the scan file, no traceback; container exits non-zero; no result.txt in data folder |
+| RECOGNITION-INFRA-003.1-S2 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View; 8.1 Error Handling | RECOGNITION-INFRA-003.1 | Message on standard error that names the scan file, no traceback; container exits non-zero; no result.txt in data folder |
