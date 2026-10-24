@@ -92,3 +92,33 @@ def test_recognition_be_002_1_s2_all_nine_unrecognised_digits_become_question_ma
     # THEN the output for that entry is "?????????"
     assert account_number == "?????????"
     # AND no exception is raised
+
+
+def test_recognition_be_002_2_s1_entry_with_unreadable_digit_passed_on_next_processed():
+    # GIVEN a scan file with two entries: the first has an all-spaces grid at
+    # digit position 1 and eight 0 patterns at positions 2 through 9, the
+    # second represents the account number 123456789
+    entry_1 = (
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+    )
+    entry_2 = (
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n"
+    )
+    scan_content = entry_1 + entry_2
+
+    # WHEN Recognition processes the scan file
+    entries = split_into_entries(scan_content)
+    results = [recognize_digits(e) for e in entries]
+
+    # THEN Recognition returns two results in order
+    assert len(results) == 2
+    # AND the first result is "?00000000"
+    assert results[0] == "?00000000"
+    # AND the second result is "123456789"
+    assert results[1] == "123456789"
