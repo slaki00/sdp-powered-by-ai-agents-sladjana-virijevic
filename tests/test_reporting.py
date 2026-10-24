@@ -178,3 +178,31 @@ def test_reporting_be_003_1_s2_err_entry_888888888_becomes_amb():
     assert new_status == "AMB"
     # AND the result for this entry is "888888888 AMB"
     assert corrected_number == "888888888"
+
+
+def test_reporting_be_003_1_s3_err_entry_555555555_becomes_amb():
+    # GIVEN an entry whose three lines of 27 characters are:
+    #  _  _  _  _  _  _  _  _  _
+    # |_ |_ |_ |_ |_ |_ |_ |_ |_
+    #  _| _| _| _| _| _| _| _| _|
+    entry = [
+        " _  _  _  _  _  _  _  _  _ ",
+        "|_ |_ |_ |_ |_ |_ |_ |_ |_ ",
+        " _| _| _| _| _| _| _| _| _|",
+    ]
+    # AND Recognition produces "555555555" with status ERR
+    # AND 555555555 fails the checksum: weighted sum 225, 225 mod 11 = 5
+    # AND the correction search finds two alternatives that pass:
+    #     555655555 (sum 231), 559555555 (sum 253)
+    account_number = "555555555"
+    status = "ERR"
+
+    # WHEN Reporting & Correction evaluates the alternatives
+    corrected_number, new_status = correct_entry(
+        entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+    )
+
+    # THEN the status is changed from ERR to AMB
+    assert new_status == "AMB"
+    # AND the result for this entry is "555555555 AMB"
+    assert corrected_number == "555555555"
