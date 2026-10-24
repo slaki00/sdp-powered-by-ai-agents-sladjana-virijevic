@@ -21,7 +21,7 @@ container; no server, database or network connection is required.
 | F1  | Read scan file | Read a text file produced by the scanner and convert each 4-line entry (3 lines of 27 characters + 1 blank line) into a 9-digit account number. |
 | F2  | Validate checksum | For each recognised number, verify the checksum: `(1·d₁ + 2·d₂ + … + 9·d₉) mod 11 = 0`, where d₁ is the rightmost digit and d₉ is the leftmost digit. |
 | F3  | Write result file | Produce an output file with one account number per line. Append `ERR` when the checksum fails, `ILL` when a digit could not be recognised, and `AMB` when more than one correction is possible. |
-| F4  | Attempt correction | For entries marked `ERR` or `ILL`, try alternative digit interpretations. If exactly one alternative passes the checksum, replace the number and clear the flag. If more than one passes, mark the entry `AMB`. If no alternative passes, the entry keeps its `ERR` or `ILL` status. |
+| F4  | Attempt correction | For entries marked `ERR` or `ILL`, try alternative digit interpretations. If exactly one alternative passes the checksum, replace the number and clear the flag. If more than one passes, mark the entry `AMB`. If no alternative passes, the entry keeps its `ERR` or `ILL` status. An alternative changes one digit by adding or removing exactly one pipe or underscore (BankOCR kata, User Story 4). |
 
 ## 1.3 Quality Goals
 
