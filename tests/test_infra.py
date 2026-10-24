@@ -274,3 +274,39 @@ def test_reporting_infra_001_1_s1_reporting_runs_inside_the_container(tmp_path):
     assert lines[1] == "664371495 ERR"
     # AND the container exits with code 0
     assert result.returncode == 0
+
+
+def test_reporting_infra_001_2_s1_result_file_written_to_mounted_data_folder(
+    tmp_path,
+):
+    # GIVEN a data folder contains scan.txt with two entries
+    # representing 345882865 and 664371495
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n"
+        " _  _     _  _        _  _ \n"
+        "|_ |_ |_| _|  |  ||_||_||_ \n"
+        "|_||_|  | _|  |  |  | _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+    # AND no result.txt exists in the data folder
+    assert not result_file.exists()
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt is created on the local machine
+    assert result_file.exists()
+    # AND data/result.txt contains "345882865" on line 1 and "664371495 ERR" on line 2
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "345882865"
+    assert lines[1] == "664371495 ERR"
