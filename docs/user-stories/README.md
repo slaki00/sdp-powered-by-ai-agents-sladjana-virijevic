@@ -22,7 +22,7 @@ Stories are ordered by priority: a story is placed after the stories it depends 
 | 2 | VALIDATION-STORY-001 | Validate each number with the checksum, mark ERR when it fails | F2 | Core | Done | Done (#11) |
 | 3 | REPORTING-STORY-001 | Write the result file, one number per line with its marker | F3 | Core | Done | Done (#13) |
 | 4 | RECOGNITION-STORY-002 | Mark unreadable digits with ? and continue with the next entry | F1, Robustness | Supporting | Done | BE done (#22); end-to-end waits for VALIDATION-STORY-002 |
-| 5 | VALIDATION-STORY-002 | Mark a number with an unreadable digit as ILL, without calculating the checksum | F2, F3 | Supporting | Not started | Not started |
+| 5 | VALIDATION-STORY-002 | Mark a number with an unreadable digit as ILL, without calculating the checksum | F2, F3 | Supporting | Done | Not started |
 | 6 | RECOGNITION-STORY-003 | Show a clear error when the scan file is missing or unreadable | 8.1, R3 | Supporting | Not started | Not started |
 | 7 | REPORTING-STORY-002 | Correct an ERR or ILL entry when exactly one alternative passes | F4 | Supporting | Not started | Not started |
 | 8 | REPORTING-STORY-003 | Mark AMB when more than one alternative passes | F4 | Supporting | Not started | Not started |
