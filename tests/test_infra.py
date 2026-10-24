@@ -702,3 +702,33 @@ def test_reporting_infra_002_1_s1_bankocr_corrects_err_entry_inside_container(
     assert lines == ["664371485"]
     # AND the container exits with code 0
     assert result.returncode == 0
+
+
+def test_reporting_story_002_s1_err_entry_with_one_valid_alternative_is_corrected(
+    tmp_path,
+):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (the number 664371495 which fails the checksum):
+    #  _  _     _  _        _  _
+    # |_ |_ |_| _|  |  ||_||_||_
+    # |_||_|  | _|  |  |  | _| _|
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _     _  _        _  _ \n"
+        "|_ |_ |_| _|  |  ||_||_||_ \n"
+        "|_||_|  | _|  |  |  | _| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file contains one line: "664371485" with no marker
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["664371485"]
