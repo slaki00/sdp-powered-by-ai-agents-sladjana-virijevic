@@ -623,3 +623,26 @@ def test_recognition_infra_003_1_s2_scan_unreadable_message_on_stderr_exits_nonz
     assert result.returncode != 0
     # AND no result.txt is created in the data folder
     assert not (tmp_path / "result.txt").exists()
+
+
+def test_recognition_story_003_s1_scan_file_does_not_exist(tmp_path):
+    # GIVEN the data folder on the local machine contains no scan.txt
+    scan_path = str(tmp_path / "scan.txt")
+    result_path = str(tmp_path / "result.txt")
+
+    # WHEN the Operator runs BankOCR
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", scan_path, result_path],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN a message is written to standard error
+    assert result.stderr != ""
+    # AND the message names the scan file and is not a Python traceback
+    assert scan_path in result.stderr
+    assert "Traceback" not in result.stderr
+    # AND the program exits with a non-zero status
+    assert result.returncode != 0
+    # AND no result file is created
+    assert not (tmp_path / "result.txt").exists()
