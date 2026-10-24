@@ -39,20 +39,27 @@ def correct_entry(
     digit_patterns: dict,
     checksum_fn,
 ) -> tuple[str, str]:
-    """Attempt to correct an ERR entry.
+    """Attempt to correct an ERR or ILL entry.
 
-    All nine digit positions are candidates for a single-segment change.
+    For an ERR entry all nine positions are candidates for a single-segment
+    change.  For an ILL entry only the '?' positions are candidates
+    (REPORTING-BE-002.1-S1, REPORTING-BE-002.1-S2).
     Returns (corrected_number, "") when exactly one alternative passes the
-    checksum, or (account_number, status) otherwise
-    (REPORTING-BE-002.1-S1).
+    checksum, or (account_number, status) otherwise.
     """
-    if status != "ERR":
+    if status not in ("ERR", "ILL"):
         return account_number, status
 
     top, mid, bot = entry[0], entry[1], entry[2]
 
+    candidate_positions = (
+        range(9)
+        if status == "ERR"
+        else [i for i, d in enumerate(account_number) if d == "?"]
+    )
+
     valid_alternatives = []
-    for col in range(9):
+    for col in candidate_positions:
         start = col * 3
         pattern = (
             top[start : start + 3] + mid[start : start + 3] + bot[start : start + 3]

@@ -69,3 +69,30 @@ def test_reporting_be_002_1_s1_err_entry_replaced_by_single_valid_alternative():
     assert new_status == ""
     # AND 664371485 passes the checksum: weighted sum 220, 220 mod 11 = 0
     assert checksum_passes(corrected_number)
+
+
+def test_reporting_be_002_1_s2_ill_entry_replaced_by_single_valid_alternative():
+    # GIVEN an entry whose three lines of 27 characters are:
+    #     _  _     _  _  _  _  _
+    #   | _| _||_||_ |_   ||_||_|
+    #    |_  _|  | _||_|  ||_| _|
+    entry = [
+        "    _  _     _  _  _  _  _ ",
+        "  | _| _||_||_ |_   ||_||_|",
+        "   |_  _|  | _||_|  ||_| _|",
+    ]
+    # AND digit position 9 (leftmost) is a 1 pattern missing its bottom pipe;
+    # Recognition produces "?23456789" with status ILL
+    account_number = "?23456789"
+    status = "ILL"
+
+    # WHEN the correction is applied
+    corrected_number, new_status = correct_entry(
+        entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+    )
+
+    # THEN the result for this entry is "123456789" with no marker
+    assert corrected_number == "123456789"
+    assert new_status == ""
+    # AND 123456789 passes the checksum: weighted sum 165, 165 mod 11 = 0
+    assert checksum_passes(corrected_number)
