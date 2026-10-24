@@ -23,7 +23,7 @@ AS AN Operator I WANT BankOCR to write a result file with one account number per
 **Scenario ID**: REPORTING-STORY-001-S1
 
 **GIVEN**
-* A scan file with three entries: 345882865, 664371495 and 123456789
+* A scan file with three entries: 345882865, 222222222 and 123456789
 
 **WHEN**
 * The Operator runs BankOCR with the scan file
@@ -31,7 +31,7 @@ AS AN Operator I WANT BankOCR to write a result file with one account number per
 **THEN**
 * The result file has three lines
 * Line 1 is "345882865" with no marker
-* Line 2 is "664371495 ERR"
+* Line 2 is "222222222 ERR"
 * Line 3 is "123456789" with no marker
 
 ## FE
@@ -107,14 +107,14 @@ The Reporting & Correction module is part of the BankOCR Docker image and runs a
 
 **GIVEN**
 * The BankOCR image has been built with `docker build -t bankocr .`
-* A `data` folder on the local machine contains a `scan.txt` with two entries representing 345882865 and 664371495
+* A `data` folder on the local machine contains a `scan.txt` with two entries representing 345882865 and 222222222
 
 **WHEN**
 * The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
 
 **THEN**
 * The container reads `/data/scan.txt` and writes `/data/result.txt`
-* `data/result.txt` on the local machine contains "345882865" on line 1 and "664371495 ERR" on line 2
+* `data/result.txt` on the local machine contains "345882865" on line 1 and "222222222 ERR" on line 2
 * The container exits with code 0
 
 ### REPORTING-INFRA-001.2: File storage in the mounted data folder
@@ -128,7 +128,7 @@ The scan file and the result file are plain text files in a data folder on the l
 **Scenario ID**: REPORTING-INFRA-001.2-S1
 
 **GIVEN**
-* A `data` folder on the local machine contains `scan.txt` with two entries representing 345882865 and 664371495
+* A `data` folder on the local machine contains `scan.txt` with two entries representing 345882865 and 222222222
 * No `result.txt` exists in the `data` folder
 
 **WHEN**
@@ -136,7 +136,7 @@ The scan file and the result file are plain text files in a data folder on the l
 
 **THEN**
 * `data/result.txt` is created on the local machine
-* `data/result.txt` contains "345882865" on line 1 and "664371495 ERR" on line 2
+* `data/result.txt` contains "345882865" on line 1 and "222222222 ERR" on line 2
 
 ### REPORTING-INFRA-001.3: Monitoring through standard error
 
@@ -149,7 +149,7 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 **Scenario ID**: REPORTING-INFRA-001.3-S1
 
 **GIVEN**
-* A scan file containing 345882865 and 664371495
+* A scan file containing 345882865 and 222222222
 
 **WHEN**
 * The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
@@ -180,12 +180,12 @@ See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by
 
 | Scenario ID | Architecture | Parent story | Testable assertion (THEN) |
 |-------------|--------------|--------------|---------------------------|
-| REPORTING-STORY-001-S1 | 5.3 Reporting & Correction; 1.2 F3; 6.1 Happy Path; 8.2 Status Marking; 8.4 File I/O; 10.2 Scenario 4 | REPORTING-STORY-001 | Result file has three lines: "345882865", "664371495 ERR", "123456789" |
+| REPORTING-STORY-001-S1 | 5.3 Reporting & Correction; 1.2 F3; 6.1 Happy Path; 8.2 Status Marking; 8.4 File I/O; 10.2 Scenario 4 | REPORTING-STORY-001 | Result file has three lines: "345882865", "222222222 ERR", "123456789" |
 | REPORTING-BE-001.1-S1 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "345882865" |
 | REPORTING-BE-001.1-S2 | 1.2 F3; 8.2 Status Marking | REPORTING-BE-001.1 | Line is "664371495 ERR" |
 | REPORTING-BE-001.2-S1 | 5.3 Reporting & Correction; 5.4; 8.4 File I/O | REPORTING-BE-001.2 | Result file contains two lines: "345882865" and "664371495 ERR" |
-| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | REPORTING-INFRA-001.1 | data/result.txt contains "345882865" on line 1 and "664371495 ERR" on line 2; container exits with code 0 |
-| REPORTING-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | REPORTING-INFRA-001.2 | data/result.txt is created and contains "345882865" on line 1 and "664371495 ERR" on line 2 |
+| REPORTING-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | REPORTING-INFRA-001.1 | data/result.txt contains "345882865" on line 1 and "222222222 ERR" on line 2; container exits with code 0 |
+| REPORTING-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | REPORTING-INFRA-001.2 | data/result.txt is created and contains "345882865" on line 1 and "222222222 ERR" on line 2 |
 | REPORTING-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | REPORTING-INFRA-001.3 | Nothing on standard error; data/result.txt is the only file written to the data folder |
 
 ---
