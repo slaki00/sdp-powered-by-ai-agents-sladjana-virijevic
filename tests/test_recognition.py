@@ -58,3 +58,67 @@ def test_recognition_be_001_2_s2_entry_containing_digit_0_is_recognised():
 
     # THEN the recognised account number is 490867715
     assert account_number == "490867715"
+
+
+def test_recognition_be_002_1_s1_unrecognised_digit_becomes_question_mark():
+    # GIVEN an entry with an all-spaces grid at digit position 1 and eight
+    # 0 patterns at positions 2 through 9; its three lines of 27 characters:
+    entry = [
+        "    _  _  _  _  _  _  _  _ ",
+        "   | || || || || || || || |",
+        "   |_||_||_||_||_||_||_||_|",
+    ]
+
+    # WHEN Recognition converts the patterns of that entry to digits
+    account_number = recognize_digits(entry)
+
+    # THEN the output for that entry is "?00000000"
+    assert account_number == "?00000000"
+    # AND no exception is raised; processing of that entry completes normally
+
+
+def test_recognition_be_002_1_s2_all_nine_unrecognised_digits_become_question_marks():
+    # GIVEN an entry where all nine 3-by-3 grids are the all-spaces pattern;
+    # its three lines of 27 characters are:
+    entry = [
+        "                           ",
+        "                           ",
+        "                           ",
+    ]
+
+    # WHEN Recognition converts the patterns of that entry to digits
+    account_number = recognize_digits(entry)
+
+    # THEN the output for that entry is "?????????"
+    assert account_number == "?????????"
+    # AND no exception is raised
+
+
+def test_recognition_be_002_2_s1_entry_with_unreadable_digit_passed_on_next_processed():
+    # GIVEN a scan file with two entries: the first has an all-spaces grid at
+    # digit position 1 and eight 0 patterns at positions 2 through 9, the
+    # second represents the account number 123456789
+    entry_1 = (
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+    )
+    entry_2 = (
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n"
+    )
+    scan_content = entry_1 + entry_2
+
+    # WHEN Recognition processes the scan file
+    entries = split_into_entries(scan_content)
+    results = [recognize_digits(e) for e in entries]
+
+    # THEN Recognition returns two results in order
+    assert len(results) == 2
+    # AND the first result is "?00000000"
+    assert results[0] == "?00000000"
+    # AND the second result is "123456789"
+    assert results[1] == "123456789"

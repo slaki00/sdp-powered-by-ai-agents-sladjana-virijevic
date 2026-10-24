@@ -15,12 +15,12 @@ _DIGIT_PATTERNS = {
 
 
 def recognize_digits(entry):
-    """Recognize a 9-digit account number from a 3-line entry.
+    """Recognise a 9-digit account number from a 3-line entry.
 
     Each entry is a list of 3 lines of 27 characters. Each group of 3
     columns represents one digit matched against the known patterns.
-    Raises KeyError if a pattern is not recognised (unreadable digits
-    are handled in RECOGNITION-STORY-002).
+    An unrecognised pattern produces '?' in that position
+    (RECOGNITION-BE-002.1).
     """
     top, mid, bot = entry[0], entry[1], entry[2]
     account_number = ""
@@ -29,7 +29,7 @@ def recognize_digits(entry):
         pattern = (
             top[start : start + 3] + mid[start : start + 3] + bot[start : start + 3]
         )
-        account_number += _DIGIT_PATTERNS[pattern]
+        account_number += _DIGIT_PATTERNS.get(pattern, "?")  # RECOGNITION-BE-002.1
     return account_number
 
 
