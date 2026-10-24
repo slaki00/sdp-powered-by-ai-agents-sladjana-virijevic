@@ -380,3 +380,42 @@ def test_reporting_story_001_s1_valid_and_err_entries_written_in_order(tmp_path)
     assert lines[1] == "664371495 ERR"
     # AND line 3 is "123456789" with no marker
     assert lines[2] == "123456789"
+
+
+def test_validation_infra_002_1_s1_bankocr_marks_ill_entry_inside_container(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains scan.txt with two entries:
+    #   - first: all-spaces grid at digit position 1, eight 0 patterns at 2-9
+    #   - second: account number 345882865
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+        " _     _  _  _  _  _  _  _ \n"
+        " _||_||_ |_||_| _||_||_ |_ \n"
+        " _|  | _||_||_||_ |_||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt on the local machine contains two lines
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    # AND the first line is "?00000000 ILL"
+    assert lines[0] == "?00000000 ILL"
+    # AND the second line is "345882865"
+    assert lines[1] == "345882865"
+    # AND the container exits with code 0
+    assert result.returncode == 0
