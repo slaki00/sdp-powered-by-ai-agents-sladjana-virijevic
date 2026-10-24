@@ -96,3 +96,29 @@ def test_reporting_be_002_1_s2_ill_entry_replaced_by_single_valid_alternative():
     assert new_status == ""
     # AND 123456789 passes the checksum: weighted sum 165, 165 mod 11 = 0
     assert checksum_passes(corrected_number)
+
+
+def test_reporting_be_002_2_s1_ill_entry_with_no_valid_alternative_keeps_ill():
+    # GIVEN an entry whose three lines of 27 characters are
+    # (the same entry as RECOGNITION-BE-002.1-S1):
+    #     _  _  _  _  _  _  _  _
+    #    | || || || || || || || |
+    #    |_||_||_||_||_||_||_||_|
+    entry = [
+        "    _  _  _  _  _  _  _  _ ",
+        "   | || || || || || || || |",
+        "   |_||_||_||_||_||_||_||_|",
+    ]
+    # AND digit position 9 (leftmost) is an all-spaces pattern;
+    # Recognition produces "?00000000" with status ILL
+    account_number = "?00000000"
+    status = "ILL"
+
+    # WHEN the correction attempt completes
+    corrected_number, new_status = correct_entry(
+        entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+    )
+
+    # THEN the result for this entry is "?00000000 ILL"
+    assert corrected_number == "?00000000"
+    assert new_status == "ILL"
