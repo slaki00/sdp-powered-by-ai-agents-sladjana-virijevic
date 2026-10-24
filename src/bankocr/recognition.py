@@ -1,6 +1,6 @@
 # Each digit is represented as a 9-character string: the 3-character top row,
 # followed by the 3-character middle row, followed by the 3-character bottom row.
-_DIGIT_PATTERNS = {
+DIGIT_PATTERNS = {
     " _ " "| |" "|_|": "0",
     "   " "  |" "  |": "1",
     " _ " " _|" "|_ ": "2",
@@ -29,7 +29,7 @@ def recognize_digits(entry):
         pattern = (
             top[start : start + 3] + mid[start : start + 3] + bot[start : start + 3]
         )
-        account_number += _DIGIT_PATTERNS.get(pattern, "?")  # RECOGNITION-BE-002.1
+        account_number += DIGIT_PATTERNS.get(pattern, "?")  # RECOGNITION-BE-002.1
     return account_number
 
 
