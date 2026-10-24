@@ -860,3 +860,35 @@ def test_reporting_story_003_s1_err_entry_with_more_than_one_alt_marked_amb(
     # AND the result file contains one line: "490067715 AMB"
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines == ["490067715 AMB"]
+
+
+def test_reporting_story_003_s2_err_entry_888888888_marked_amb(tmp_path):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (Recognition produces "888888888"; Validation marks it ERR):
+    #  _  _  _  _  _  _  _  _  _
+    # |_||_||_||_||_||_||_||_||_|
+    # |_||_||_||_||_||_||_||_||_|
+    # AND 888888888 fails the checksum: weighted sum 360, 360 mod 11 = 8
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        " _  _  _  _  _  _  _  _  _ \n"
+        "|_||_||_||_||_||_||_||_||_|\n"
+        "|_||_||_||_||_||_||_||_||_|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN Reporting & Correction finds three alternatives: 888886888,
+    # 888888880 and 888888988
+    # AND because more than one alternative passes, the entry is marked AMB
+    # AND the result file contains one line: "888888888 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["888888888 AMB"]
