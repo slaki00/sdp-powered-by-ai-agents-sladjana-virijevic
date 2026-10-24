@@ -568,3 +568,29 @@ def test_recognition_story_002_s1_unreadable_digit_marked_and_processing_continu
     assert lines[1] == "123456789"
     # AND both entries appear in the result file; no entry is dropped
     assert len(lines) == 2
+
+
+def test_recognition_infra_003_1_s1_no_scan_txt_message_on_stderr_exits_nonzero(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND the data folder on the local machine is empty (no scan.txt)
+    scan_path = str(tmp_path / "scan.txt")
+    result_path = str(tmp_path / "result.txt")
+
+    # WHEN the Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", scan_path, result_path],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN a message is written to standard error
+    assert result.stderr != ""
+    # AND the message names the scan file and is not a Python traceback
+    assert scan_path in result.stderr
+    assert "Traceback" not in result.stderr
+    # AND the container exits with a non-zero status
+    assert result.returncode != 0
+    # AND no result.txt is created in the data folder
+    assert not (tmp_path / "result.txt").exists()
