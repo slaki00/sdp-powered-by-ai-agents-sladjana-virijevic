@@ -1,4 +1,6 @@
-from bankocr.reporting import format_result_line, write_result_file
+from bankocr.recognition import DIGIT_PATTERNS
+from bankocr.reporting import correct_entry, format_result_line, write_result_file
+from bankocr.validation import checksum_passes
 
 
 def test_reporting_be_001_1_s1_valid_number_has_no_marker():
@@ -40,3 +42,30 @@ def test_reporting_be_001_2_s1_two_entries_produce_two_line_result_file(tmp_path
     assert written[0] == "345882865"
     # AND line 2 is "664371495 ERR"
     assert written[1] == "664371495 ERR"
+
+
+def test_reporting_be_002_1_s1_err_entry_replaced_by_single_valid_alternative():
+    # GIVEN an entry whose three lines of 27 characters are:
+    #  _  _     _  _        _  _
+    # |_ |_ |_| _|  |  ||_||_||_
+    # |_||_|  | _|  |  |  | _| _|
+    entry = [
+        " _  _     _  _        _  _ ",
+        "|_ |_ |_| _|  |  ||_||_||_ ",
+        "|_||_|  | _|  |  |  | _| _|",
+    ]
+    # AND Recognition produces "664371495" with status ERR
+    # AND 664371495 fails the checksum: weighted sum 222, 222 mod 11 = 2
+    account_number = "664371495"
+    status = "ERR"
+
+    # WHEN the correction is applied
+    corrected_number, new_status = correct_entry(
+        entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+    )
+
+    # THEN the result for this entry is "664371485" with no marker
+    assert corrected_number == "664371485"
+    assert new_status == ""
+    # AND 664371485 passes the checksum: weighted sum 220, 220 mod 11 = 0
+    assert checksum_passes(corrected_number)
