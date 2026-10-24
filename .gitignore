@@ -4,3 +4,4 @@ __pycache__/
 .kiro/prompt-drafts/
 .ruff_cache/
 working-notes.md
+docs/_build/

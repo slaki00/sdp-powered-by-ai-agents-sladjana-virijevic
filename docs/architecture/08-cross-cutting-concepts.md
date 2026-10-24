@@ -61,5 +61,7 @@ Each module can be tested on its own with plain text input:
 - **Reporting & Correction**: provide entries with status, check the
   corrections and the written output.
 
-Tests do not require Docker or the other modules. Tests are run with pytest
-(ADR-003).
+Tests do not require the other modules. Tests are run inside the same Docker
+image with (ADR-003, ADR-004):
+
+    docker run --rm --entrypoint pytest bankocr
