@@ -62,3 +62,16 @@ def test_validation_be_002_1_s1_one_unreadable_digit_causes_ill():
     assert status == "ILL"
     # AND no checksum calculation is performed for this entry
     # (verified implicitly: assign_status returns "ILL" without raising ValueError)
+
+
+def test_validation_be_002_1_s2_nine_unreadable_digits_cause_ill():
+    # GIVEN the Recognition output for an entry is "?????????"
+    digits = "?????????"
+
+    # WHEN Validation checks the entry
+    status = assign_status(digits)
+
+    # THEN the ILL status is assigned
+    assert status == "ILL"
+    # AND no checksum calculation is performed for this entry
+    # (verified implicitly: no ValueError raised)
