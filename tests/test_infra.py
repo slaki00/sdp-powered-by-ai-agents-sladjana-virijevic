@@ -459,3 +459,33 @@ def test_validation_story_002_s1_unreadable_digit_marked_ill_valid_no_marker(
     assert lines[0] == "?00000000 ILL"
     # AND line 2 is "345882865" with no marker
     assert lines[1] == "345882865"
+
+
+def test_validation_story_002_s2_all_nine_unreadable_marked_ill(tmp_path):
+    # GIVEN a scan file with one entry where all nine 3-by-3 grids are
+    # the all-spaces pattern; its three lines of 27 characters are:
+    #    (27 spaces)
+    #    (27 spaces)
+    #    (27 spaces)
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "                           \n"
+        "                           \n"
+        "                           \n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file has one line
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    # AND line 1 is "????????? ILL"
+    assert lines[0] == "????????? ILL"
