@@ -49,3 +49,16 @@ def test_validation_be_001_2_s2_failed_checksum_marked_err():
 
     # THEN the number is marked ERR
     assert status == "ERR"
+
+
+def test_validation_be_002_1_s1_one_unreadable_digit_causes_ill():
+    # GIVEN the Recognition output for an entry is "?00000000"
+    digits = "?00000000"
+
+    # WHEN Validation checks the entry
+    status = assign_status(digits)
+
+    # THEN the ILL status is assigned
+    assert status == "ILL"
+    # AND no checksum calculation is performed for this entry
+    # (verified implicitly: assign_status returns "ILL" without raising ValueError)
