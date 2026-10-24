@@ -461,6 +461,45 @@ def test_validation_story_002_s1_unreadable_digit_marked_ill_valid_no_marker(
     assert lines[1] == "345882865"
 
 
+def test_recognition_infra_002_1_s1_bankocr_processes_scan_with_unreadable_digit(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains scan.txt with two entries:
+    #   - first: all-spaces grid at digit position 1, eight 0 patterns at 2-9
+    #   - second: account number 123456789
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the CLI is run as python -m bankocr <scan_file> <result_file>
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt on the local machine contains two lines
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 2
+    # AND the first line is "?00000000 ILL"
+    assert lines[0] == "?00000000 ILL"
+    # AND the second line is "123456789"
+    assert lines[1] == "123456789"
+    # AND the container exits with code 0
+    assert result.returncode == 0
+
+
 def test_validation_story_002_s2_all_nine_unreadable_marked_ill(tmp_path):
     # GIVEN a scan file with one entry where all nine 3-by-3 grids are
     # the all-spaces pattern; its three lines of 27 characters are:
@@ -489,3 +528,43 @@ def test_validation_story_002_s2_all_nine_unreadable_marked_ill(tmp_path):
     assert len(lines) == 1
     # AND line 1 is "????????? ILL"
     assert lines[0] == "????????? ILL"
+
+
+def test_recognition_story_002_s1_unreadable_digit_marked_and_processing_continues(
+    tmp_path,
+):
+    # GIVEN a scan file with two entries:
+    # - first: all-spaces grid at digit position 1; its three lines of 27
+    #   characters are:
+    #       _  _  _  _  _  _  _  _
+    #      | || || || || || || || |
+    #      |_||_||_||_||_||_||_||_|
+    # - second: account number 123456789
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result for the first entry is "?00000000 ILL"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "?00000000 ILL"
+    # AND the result for the second entry is "123456789"
+    assert lines[1] == "123456789"
+    # AND both entries appear in the result file; no entry is dropped
+    assert len(lines) == 2
