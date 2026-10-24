@@ -1,6 +1,6 @@
 # Reporting
 
-Domain: REPORTING. Bounded context: Reporting & Correction (`architecture/05-building-block-view.md`, 5.3).
+Domain: REPORTING. Bounded context: Reporting & Correction (`docs/architecture/05-building-block-view.md`, 5.3).
 
 ## REPORTING-STORY-001: Write the result file, one number per line with its marker
 
@@ -9,12 +9,12 @@ AS AN Operator I WANT BankOCR to write a result file with one account number per
 **Priority:** Core
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
-- `architecture/01-introduction-and-goals.md`, 1.2 F3 Write result file
-- `architecture/06-runtime-view.md`, 6.1 Happy Path: All Digits Recognised and Checksum Passes
-- `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
-- `architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
-- `architecture/10-quality-requirements.md`, 10.2 Scenario 4
+- `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F3 Write result file
+- `docs/architecture/06-runtime-view.md`, 6.1 Happy Path: All Digits Recognised and Checksum Passes
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
+- `docs/architecture/10-quality-requirements.md`, 10.2 Scenario 4
 
 **Out of scope:** correction and the AMB marker (REPORTING-STORY-002, REPORTING-STORY-003), the ILL marker for numbers with unreadable digits (VALIDATION-STORY-002), unreadable digits and the ? marker (RECOGNITION-STORY-002), errors when the scan file is missing or unreadable (RECOGNITION-STORY-003).
 
@@ -44,7 +44,7 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 
 Given an account number and its validation status, produce one output line. A valid number has no marker. A number with a failed checksum is followed by " ERR".
 
-**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F3; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+**Architecture references:** `docs/architecture/01-introduction-and-goals.md`, 1.2 F3; `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 #### SCENARIO 1: Valid number has no marker
 
@@ -76,7 +76,7 @@ Given an account number and its validation status, produce one output line. A va
 
 Given the output file path from the CLI Entry Point, write one formatted line per entry to the result file. The file is written once after all entries are processed.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Reporting & Correction and 5.4 Important Interfaces; `architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction and 5.4 Important Interfaces; `docs/architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
 
 #### SCENARIO 1: Two entries produce a two-line result file
 
@@ -99,7 +99,7 @@ Given the output file path from the CLI Entry Point, write one formatted line pe
 
 The Reporting & Correction module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Reporting runs inside the container
 
@@ -121,7 +121,7 @@ The Reporting & Correction module is part of the BankOCR Docker image and runs a
 
 The scan file and the result file are plain text files in a data folder on the local machine, mounted into the container as a volume. There is no database.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `docs/architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
 
 #### SCENARIO 1: Result file is written to the mounted data folder
 
@@ -142,7 +142,7 @@ The scan file and the result file are plain text files in a data folder on the l
 
 BankOCR writes no log files. Diagnostic messages go to standard error. An ERR entry is a normal result, not an error, so it produces no diagnostic message.
 
-**Architecture references:** `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
+**Architecture references:** `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
 
 #### SCENARIO 1: ERR entries produce no diagnostic messages
 
@@ -160,7 +160,7 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Test environment
 
@@ -197,18 +197,18 @@ AS AN Operator I WANT BankOCR to replace an ERR or ILL entry with the corrected 
 **Priority:** Supporting
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
-- `architecture/01-introduction-and-goals.md`, 1.2 F4 Attempt correction
-- `architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
-- `architecture/06-runtime-view.md`, 6.3 Bad Checksum: ERR with Correction
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+- `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F4 Attempt correction
+- `docs/architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
+- `docs/architecture/06-runtime-view.md`, 6.3 Bad Checksum: ERR with Correction
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 **Correction rule (quoted from architecture):**
 
-F4 (`architecture/01-introduction-and-goals.md`, 1.2): "For entries marked ERR or ILL, try alternative digit interpretations. If exactly one alternative passes the checksum, replace the number and clear the flag. If more than one passes, mark the entry AMB. If no alternative passes, the entry keeps its ERR or ILL status. An alternative changes one digit by adding or removing exactly one pipe or underscore."
+F4 (`docs/architecture/01-introduction-and-goals.md`, 1.2): "For entries marked ERR or ILL, try alternative digit interpretations. If exactly one alternative passes the checksum, replace the number and clear the flag. If more than one passes, mark the entry AMB. If no alternative passes, the entry keeps its ERR or ILL status. An alternative changes one digit by adding or removing exactly one pipe or underscore."
 
-For an ERR entry all nine digit positions are candidates for the single-segment change. For an ILL entry only the unrecognised (`?`) position is a candidate (`architecture/06-runtime-view.md`, 6.2: "tries alternative interpretations for the unreadable digit").
+For an ERR entry all nine digit positions are candidates for the single-segment change. For an ILL entry only the unrecognised (`?`) position is a candidate (`docs/architecture/06-runtime-view.md`, 6.2: "tries alternative interpretations for the unreadable digit").
 
 **Out of scope:** marking AMB when more than one alternative passes (REPORTING-STORY-003), writing the result file without correction (REPORTING-STORY-001), the ILL marker for numbers with unreadable digits (VALIDATION-STORY-002), the ERR marker for failed checksums (VALIDATION-STORY-001).
 
@@ -298,7 +298,7 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 
 Given an entry with status ERR or ILL and its three-line scan drawing, Reporting & Correction tries all alternatives produced by adding or removing exactly one pipe or underscore from each candidate digit position. For an ERR entry the candidates are all nine positions. For an ILL entry the candidates are only the unrecognised (`?`) positions. Each alternative that matches a known digit pattern is checked against the checksum. When exactly one candidate passes, the corrected number replaces the original entry and its status is cleared.
 
-**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F4; `architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `architecture/06-runtime-view.md`, 6.2, 6.3; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+**Architecture references:** `docs/architecture/01-introduction-and-goals.md`, 1.2 F4; `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `docs/architecture/06-runtime-view.md`, 6.2, 6.3; `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 #### SCENARIO 1: ERR entry is replaced by the single valid alternative
 
@@ -353,7 +353,7 @@ Given an entry with status ERR or ILL and its three-line scan drawing, Reporting
 
 Given an entry with status ERR or ILL where no single-segment alternative produces a known digit that passes the checksum, Reporting & Correction leaves the entry unchanged and passes through the original number and status to the result file.
 
-**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F4; `architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+**Architecture references:** `docs/architecture/01-introduction-and-goals.md`, 1.2 F4; `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling; `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 #### SCENARIO 1: ILL entry with no valid alternative keeps ILL
 
@@ -384,7 +384,7 @@ Given an entry with status ERR or ILL where no single-segment alternative produc
 
 See REPORTING-INFRA-001.1. No additional deployment configuration is needed for correction; it is part of the same Reporting & Correction module and Docker image.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: BankOCR corrects an ERR entry inside the container
 
@@ -407,11 +407,11 @@ See REPORTING-INFRA-001.2. There is no database; the scan file and result file a
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Monitoring
 
-See REPORTING-INFRA-001.3. A corrected entry is a normal result, not an error. Reporting & Correction writes nothing to standard error when it replaces an ERR or ILL entry. An entry that keeps its ERR or ILL status because no alternative was found is also a normal result (`architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
+See REPORTING-INFRA-001.3. A corrected entry is a normal result, not an error. Reporting & Correction writes nothing to standard error when it replaces an ERR or ILL entry. An entry that keeps its ERR or ILL status because no alternative was found is also a normal result (`docs/architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
 
 ### Test environment
 
@@ -447,12 +447,12 @@ AS AN Operator I WANT BankOCR to mark an ERR or ILL entry as AMB when more than 
 **Priority:** Supporting
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
-- `architecture/01-introduction-and-goals.md`, 1.2 F4 Attempt correction
-- `architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
-- `architecture/06-runtime-view.md`, 6.3 Bad Checksum: ERR with Correction
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+- `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F4 Attempt correction
+- `docs/architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
+- `docs/architecture/06-runtime-view.md`, 6.3 Bad Checksum: ERR with Correction
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 **Out of scope:** replacing an entry with the single valid alternative (REPORTING-STORY-002), writing the result file without correction (REPORTING-STORY-001), the ERR marker for failed checksums (VALIDATION-STORY-001), the ILL marker for numbers with unreadable digits (VALIDATION-STORY-002).
 
@@ -538,7 +538,7 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 
 Given an entry with status ERR or ILL where the correction search (REPORTING-BE-002.1) finds more than one alternative that passes the checksum, Reporting & Correction replaces the ERR or ILL status with AMB. The original number is kept unchanged. No alternative is written; only the AMB marker is appended.
 
-**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F4; `architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+**Architecture references:** `docs/architecture/01-introduction-and-goals.md`, 1.2 F4; `docs/architecture/05-building-block-view.md`, 5.3 Reporting & Correction; `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 #### SCENARIO 1: ERR entry 490067715 becomes AMB
 
@@ -618,7 +618,7 @@ Given an entry with status ERR or ILL where the correction search (REPORTING-BE-
 
 See REPORTING-INFRA-001.1. No additional deployment configuration is needed for AMB marking; it is part of the same Reporting & Correction module and Docker image.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: BankOCR marks an AMB entry inside the container
 
@@ -641,11 +641,11 @@ See REPORTING-INFRA-001.2. There is no database; the scan file and result file a
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Monitoring
 
-See REPORTING-INFRA-001.3. An AMB entry is a normal result, not an error (`architecture/08-cross-cutting-concepts.md`, 8.1 and 8.3). Reporting & Correction writes nothing to standard error when it marks an entry AMB.
+See REPORTING-INFRA-001.3. An AMB entry is a normal result, not an error (`docs/architecture/08-cross-cutting-concepts.md`, 8.1 and 8.3). Reporting & Correction writes nothing to standard error when it marks an entry AMB.
 
 ### Test environment
 

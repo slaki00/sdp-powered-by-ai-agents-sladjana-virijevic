@@ -65,7 +65,7 @@ Refactor only when ALL tests are GREEN. Never refactor on RED.
 
 Check, in this order:
 - [ ] Eliminate duplicated code (but a Fake It constant waiting for triangulation is not duplication to remove yet)
-- [ ] Improve variable and function names; use the terms from `architecture/12-glossary.md`
+- [ ] Improve variable and function names; use the terms from `docs/architecture/12-glossary.md`
 - [ ] Simplify complex conditionals
 - [ ] Extract functions where it makes the code easier to read
 - [ ] Run ALL tests after EACH refactoring change
@@ -118,4 +118,4 @@ Always implement in this order:
 - Use GIVEN-WHEN-THEN comments in every test
 - Reference Story ID and Scenario ID in test names and commits
 - Implement only the behavior of the current scenario. Do not add code for another scenario or story (for example a damaged entry, an unreadable digit `?` or a digit that is not in the current test); that behavior gets its own failing test first
-- Use the terms and the British spelling from `architecture/12-glossary.md` (recognise, recognised)
+- Use the terms and the British spelling from `docs/architecture/12-glossary.md` (recognise, recognised)

@@ -1,6 +1,6 @@
 # Validation
 
-Domain: VALIDATION. Bounded context: Validation (`architecture/05-building-block-view.md`, 5.3).
+Domain: VALIDATION. Bounded context: Validation (`docs/architecture/05-building-block-view.md`, 5.3).
 
 ## VALIDATION-STORY-001: Validate account numbers with the checksum
 
@@ -9,10 +9,10 @@ AS AN Operator I WANT BankOCR to validate every recognised account number with t
 **Priority:** Core
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Validation component
-- `architecture/01-introduction-and-goals.md`, 1.2 F2 Validate checksum
-- `architecture/01-introduction-and-goals.md`, 1.3 Quality goal Accuracy
-- `architecture/10-quality-requirements.md`, 10.2 Scenario 1
+- `docs/architecture/05-building-block-view.md`, 5.3 Validation component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F2 Validate checksum
+- `docs/architecture/01-introduction-and-goals.md`, 1.3 Quality goal Accuracy
+- `docs/architecture/10-quality-requirements.md`, 10.2 Scenario 1
 
 **Out of scope:** numbers with unreadable digits and the ILL marker (VALIDATION-STORY-002), correction and the AMB marker (REPORTING-STORY-002, REPORTING-STORY-003).
 
@@ -41,7 +41,7 @@ Not applicable. Validation shows nothing to the Operator directly; the status it
 
 Given 9 recognised digits, calculate (1*d1 + 2*d2 + ... + 9*d9) mod 11, where d1 is the rightmost digit and d9 the leftmost, and report whether the result is 0.
 
-**Architecture references:** `architecture/01-introduction-and-goals.md`, 1.2 F2; `architecture/11-risks-and-technical-debts.md`, R4
+**Architecture references:** `docs/architecture/01-introduction-and-goals.md`, 1.2 F2; `docs/architecture/11-risks-and-technical-debts.md`, R4
 
 #### SCENARIO 1: Checksum passes
 
@@ -75,7 +75,7 @@ Given 9 recognised digits, calculate (1*d1 + 2*d2 + ... + 9*d9) mod 11, where d1
 
 Given a recognised account number, use VALIDATION-BE-001.1 to mark it valid (no marker) when the checksum passes, or ERR when it fails.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Validation; `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Validation; `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
 
 #### SCENARIO 1: Valid number has no marker
 
@@ -109,7 +109,7 @@ Given a recognised account number, use VALIDATION-BE-001.1 to mark it valid (no 
 
 The Validation module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Validation runs inside the container
 
@@ -131,7 +131,7 @@ The Validation module is part of the BankOCR Docker image and runs as one CLI pr
 
 The scan file and the result file are plain text files in a data folder on the local machine, mounted into the container as a volume. There is no database.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `docs/architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
 
 #### SCENARIO 1: Result with ERR is stored in the data folder
 
@@ -152,7 +152,7 @@ The scan file and the result file are plain text files in a data folder on the l
 
 BankOCR writes no log files. Diagnostic messages go to standard error. An ERR entry is a normal result, not an error, so it produces no diagnostic message.
 
-**Architecture references:** `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
+**Architecture references:** `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
 
 #### SCENARIO 1: ERR entries produce no diagnostic messages
 
@@ -170,7 +170,7 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Test environment
 
@@ -210,11 +210,11 @@ AS AN Operator I WANT BankOCR to mark any account number that contains an unread
 **Priority:** Supporting
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Validation component
-- `architecture/01-introduction-and-goals.md`, 1.2 F2 Validate checksum, F3 Write result file
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
-- `architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
+- `docs/architecture/05-building-block-view.md`, 5.3 Validation component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F2 Validate checksum, F3 Write result file
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.2 Status Marking
+- `docs/architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
 
 **Out of scope:** marking a number ERR when the checksum fails (VALIDATION-STORY-001), correcting an ILL entry (REPORTING-STORY-002), marking AMB when more than one correction passes (REPORTING-STORY-003), marking an entry when the scan file itself is missing or unreadable (RECOGNITION-STORY-003).
 
@@ -274,7 +274,7 @@ Not applicable. Validation shows nothing to the Operator directly; the ILL statu
 
 Given 9 positions from Recognition, check whether any position contains `?`. If at least one does, assign the ILL status immediately without calculating the checksum.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Validation; `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling, 8.2 Status Marking
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Validation; `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling, 8.2 Status Marking
 
 #### SCENARIO 1: One unreadable digit causes ILL without a checksum calculation
 
@@ -308,7 +308,7 @@ Given 9 positions from Recognition, check whether any position contains `?`. If 
 
 After assigning ILL to an entry with unreadable digits, Validation passes the result to the CLI Entry Point and continues with the next entry. Validation does not stop processing when it encounters an ILL entry.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Validation; `architecture/05-building-block-view.md`, 5.4 Important Interfaces; `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling; `architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Validation; `docs/architecture/05-building-block-view.md`, 5.4 Important Interfaces; `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling; `docs/architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
 
 #### SCENARIO 1: ILL entry is passed on and next entry is validated normally
 
@@ -331,7 +331,7 @@ After assigning ILL to an entry with unreadable digits, Validation passes the re
 
 See VALIDATION-INFRA-001.1. No additional deployment configuration is needed for ILL marking; it is part of the same Validation module and Docker image.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: BankOCR marks an ILL entry inside the container
 
@@ -356,11 +356,11 @@ See VALIDATION-INFRA-001.2. There is no database; the scan file and result file 
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Monitoring
 
-See VALIDATION-INFRA-001.3. An ILL entry is a normal result, not an error. Validation writes nothing to standard error when it marks an entry ILL (`architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
+See VALIDATION-INFRA-001.3. An ILL entry is a normal result, not an error. Validation writes nothing to standard error when it marks an entry ILL (`docs/architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
 
 ### Test environment
 
