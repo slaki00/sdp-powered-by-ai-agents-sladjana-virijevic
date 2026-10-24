@@ -1,6 +1,6 @@
 # User Stories: BankOCR
 
-Derived from the architecture in `architecture/`. Domains follow the bounded contexts in chapter 5.3.
+Derived from the architecture in `docs/architecture/`. Domains follow the bounded contexts in chapter 5.3.
 
 ## Domains
 

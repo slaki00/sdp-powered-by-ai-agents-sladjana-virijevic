@@ -1,6 +1,6 @@
 # Recognition
 
-Domain: RECOGNITION. Bounded context: Recognition (`architecture/05-building-block-view.md`, 5.3).
+Domain: RECOGNITION. Bounded context: Recognition (`docs/architecture/05-building-block-view.md`, 5.3).
 
 ## RECOGNITION-STORY-001: Read each entry as a 9-digit account number
 
@@ -9,10 +9,10 @@ AS AN Operator I WANT BankOCR to read each entry in the scan file and recognise 
 **Priority:** Core
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Recognition component
-- `architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
-- `architecture/04-solution-strategy.md`, 4.2 System Decomposition
-- `architecture/06-runtime-view.md`, 6.1 Happy Path: All Digits Recognised and Checksum Passes
+- `docs/architecture/05-building-block-view.md`, 5.3 Recognition component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
+- `docs/architecture/04-solution-strategy.md`, 4.2 System Decomposition
+- `docs/architecture/06-runtime-view.md`, 6.1 Happy Path: All Digits Recognised and Checksum Passes
 
 **Out of scope:** unreadable digits and the ? marker (RECOGNITION-STORY-002), checksum validation and the ERR marker (VALIDATION-STORY-001), the ILL marker for numbers with unreadable digits (VALIDATION-STORY-002), writing the result file (REPORTING-STORY-001), correction and the AMB marker (REPORTING-STORY-002, REPORTING-STORY-003), errors when the scan file is missing or unreadable (RECOGNITION-STORY-003).
 
@@ -41,7 +41,7 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 
 Given the input file path from the CLI Entry Point, read the scan file and split it into entries. Each entry is 4 lines: 3 lines of 27 characters and 1 blank line.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Recognition and 5.4 Important Interfaces; `architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Recognition and 5.4 Important Interfaces; `docs/architecture/08-cross-cutting-concepts.md`, 8.4 File I/O Conventions
 
 #### SCENARIO 1: A file with two entries is split into two 4-line blocks
 
@@ -61,7 +61,7 @@ Given the input file path from the CLI Entry Point, read the scan file and split
 
 Given an entry of 3 lines of 27 characters, match each 3-by-3 character grid against the ten known digit patterns to produce a 9-digit account number.
 
-**Architecture references:** `architecture/05-building-block-view.md`, 5.3 Recognition; `architecture/01-introduction-and-goals.md`, 1.2 F1; `architecture/11-risks-and-technical-debts.md`, R1
+**Architecture references:** `docs/architecture/05-building-block-view.md`, 5.3 Recognition; `docs/architecture/01-introduction-and-goals.md`, 1.2 F1; `docs/architecture/11-risks-and-technical-debts.md`, R1
 
 #### SCENARIO 1: Entry with digits 1 through 9 is recognised correctly
 
@@ -109,7 +109,7 @@ Given an entry of 3 lines of 27 characters, match each 3-by-3 character grid aga
 
 The Recognition module is part of the BankOCR Docker image and runs as one CLI process. The program uses the Python 3.12 standard library only; pytest in the image is used only for the tests (ADR-003).
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002 and ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Recognition runs inside the container
 
@@ -131,7 +131,7 @@ The Recognition module is part of the BankOCR Docker image and runs as one CLI p
 
 The scan file and the result file are plain text files in a data folder on the local machine, mounted into the container as a volume. There is no database.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-004; `docs/architecture/07-deployment-view.md`, 7.1 Infrastructure (Data Folder)
 
 #### SCENARIO 1: Scan file is read from the mounted data folder
 
@@ -152,7 +152,7 @@ The scan file and the result file are plain text files in a data folder on the l
 
 BankOCR writes no log files. Diagnostic messages go to standard error. A recognised entry is a normal result, not an error, so it produces no diagnostic message.
 
-**Architecture references:** `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
+**Architecture references:** `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling and 8.3 Logging
 
 #### SCENARIO 1: Recognised entries produce no diagnostic messages
 
@@ -170,13 +170,13 @@ BankOCR writes no log files. Diagnostic messages go to standard error. A recogni
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### RECOGNITION-INFRA-001.4: Test environment
 
 Tests run locally in Docker, not in the cloud. The image is built with `docker build -t bankocr .` and the test suite runs inside the same image with `docker run --rm --entrypoint pytest bankocr`. The dependencies from `requirements.txt` are installed in the image. The project structure (`src/bankocr`, `tests/`) supports pytest discovery. The test environment is shared by all stories.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-003, ADR-004; `architecture/08-cross-cutting-concepts.md`, 8.5 Testing
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-003, ADR-004; `docs/architecture/08-cross-cutting-concepts.md`, 8.5 Testing
 
 #### SCENARIO 1: Dockerfile builds the bankocr image
 
@@ -266,12 +266,12 @@ AS AN Operator I WANT BankOCR to mark any digit it cannot recognise as ? and con
 **Priority:** Supporting
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Recognition component
-- `architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
-- `architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
-- `architecture/06-runtime-view.md`, 6.4 Malformed Entry: Processing Continues
+- `docs/architecture/05-building-block-view.md`, 5.3 Recognition component
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
+- `docs/architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/06-runtime-view.md`, 6.2 Unreadable Digit: ILL, Correction Attempted
+- `docs/architecture/06-runtime-view.md`, 6.4 Malformed Entry: Processing Continues
 
 **Out of scope:** marking the entry ILL when a ? is present (VALIDATION-STORY-002, which this story's end-to-end scenario depends on), attempting correction of unreadable digits (REPORTING-STORY-002, REPORTING-STORY-003), reporting a clear error when the scan file is missing or unreadable (RECOGNITION-STORY-003).
 
@@ -311,11 +311,11 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 When a 3-by-3 character grid within an entry does not match any of the ten known digit patterns, Recognition replaces that position with `?` and continues converting the remaining digit positions in the same entry.
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Recognition component
-- `architecture/05-building-block-view.md`, 5.4 Important Interfaces
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
-- `architecture/11-risks-and-technical-debts.md`, R1
+- `docs/architecture/05-building-block-view.md`, 5.3 Recognition component
+- `docs/architecture/05-building-block-view.md`, 5.4 Important Interfaces
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/01-introduction-and-goals.md`, 1.2 F1 Read scan file
+- `docs/architecture/11-risks-and-technical-debts.md`, R1
 
 #### SCENARIO 1: Single unrecognised digit in an entry is replaced with ?
 
@@ -331,7 +331,7 @@ When a 3-by-3 character grid within an entry does not match any of the ten known
 
 ```
 
-(The unreadable grid is not drawn in the kata description or the architecture; it is defined here as nine spaces, a 3-by-3 grid of spaces, which does not match any of the ten known patterns in `architecture/05-building-block-view.md`, 5.3.)
+(The unreadable grid is not drawn in the kata description or the architecture; it is defined here as nine spaces, a 3-by-3 grid of spaces, which does not match any of the ten known patterns in `docs/architecture/05-building-block-view.md`, 5.3.)
 
 **WHEN**
 * Recognition converts the patterns of that entry to digits
@@ -366,11 +366,11 @@ When a 3-by-3 character grid within an entry does not match any of the ten known
 When an entry contains one or more `?` positions, Recognition passes the partial result (with `?` in the unrecognised positions) to the CLI Entry Point and moves on to process the next entry in the scan file.
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 Recognition component
-- `architecture/05-building-block-view.md`, 5.4 Important Interfaces
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
-- `architecture/06-runtime-view.md`, 6.4 Malformed Entry: Processing Continues
+- `docs/architecture/05-building-block-view.md`, 5.3 Recognition component
+- `docs/architecture/05-building-block-view.md`, 5.4 Important Interfaces
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/01-introduction-and-goals.md`, 1.3 Robustness quality goal
+- `docs/architecture/06-runtime-view.md`, 6.4 Malformed Entry: Processing Continues
 
 #### SCENARIO 1: Entry with unreadable digit is passed on and next entry is processed
 
@@ -395,7 +395,7 @@ When an entry contains one or more `?` positions, Recognition passes the partial
 
 See RECOGNITION-INFRA-001.1. No additional deployment configuration is needed for the ? marking behaviour; it is part of the same Recognition module and Docker image.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: BankOCR processes a scan file with an unreadable digit inside the container
 
@@ -420,11 +420,11 @@ See RECOGNITION-INFRA-001.2. There is no database; the scan file and result file
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Monitoring
 
-See RECOGNITION-INFRA-001.3. A ? marker is a normal result, not an error. Recognition writes nothing to standard error when it marks a digit as ?. An entry later marked ILL by Validation is also a normal result (`architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
+See RECOGNITION-INFRA-001.3. A ? marker is a normal result, not an error. Recognition writes nothing to standard error when it marks a digit as ?. An entry later marked ILL by Validation is also a normal result (`docs/architecture/08-cross-cutting-concepts.md`, 8.1, 8.3).
 
 ### Test environment
 
@@ -456,9 +456,9 @@ AS AN Operator I WANT BankOCR to report a clear error message and exit with a no
 **Priority:** Supporting
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/11-risks-and-technical-debts.md`, R3
+- `docs/architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/11-risks-and-technical-debts.md`, R3
 
 **Out of scope:** unreadable digits and the ? marker (RECOGNITION-STORY-002), bad checksum errors and the ERR marker (VALIDATION-STORY-001), writing the result file (REPORTING-STORY-001), correction and the AMB marker (REPORTING-STORY-002, REPORTING-STORY-003).
 
@@ -505,9 +505,9 @@ Not applicable. BankOCR is a CLI program with no graphical interface (ADR-001). 
 When the CLI Entry Point cannot open the scan file because it does not exist or cannot be read, it writes a message to standard error and exits with a non-zero status. No result file is created.
 
 **Architecture references:**
-- `architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
-- `architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
-- `architecture/11-risks-and-technical-debts.md`, R3
+- `docs/architecture/05-building-block-view.md`, 5.3 CLI Entry Point component
+- `docs/architecture/08-cross-cutting-concepts.md`, 8.1 Error Handling
+- `docs/architecture/11-risks-and-technical-debts.md`, R3
 
 #### SCENARIO 1: Scan file does not exist: message goes to standard error
 
@@ -547,7 +547,7 @@ When the CLI Entry Point cannot open the scan file because it does not exist or 
 
 See RECOGNITION-INFRA-001.1. No additional deployment configuration is needed for file-error handling; it is part of the same BankOCR Docker image and CLI process. The INFRA scenarios below reuse the image from RECOGNITION-INFRA-001.1 and check the BE behaviour inside the container.
 
-**Architecture references:** `architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `architecture/07-deployment-view.md`
+**Architecture references:** `docs/architecture/09-architecture-decisions.md`, ADR-001, ADR-002, ADR-004; `docs/architecture/07-deployment-view.md`
 
 #### SCENARIO 1: Container reports an error and exits non-zero when the data folder has no scan.txt
 
@@ -589,11 +589,11 @@ See RECOGNITION-INFRA-001.2. There is no database; the scan file is a plain text
 
 ### Event handling
 
-Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`architecture/04-solution-strategy.md`, 4.2).
+Not applicable. The CLI Entry Point runs the modules in a fixed order, without events (`docs/architecture/04-solution-strategy.md`, 4.2).
 
 ### Monitoring
 
-See RECOGNITION-INFRA-001.3. A missing or unreadable scan file is not an entry-specific result; it is a non-entry error reported on standard error as specified in `architecture/08-cross-cutting-concepts.md`, 8.1.
+See RECOGNITION-INFRA-001.3. A missing or unreadable scan file is not an entry-specific result; it is a non-entry error reported on standard error as specified in `docs/architecture/08-cross-cutting-concepts.md`, 8.1.
 
 ### Test environment
 
