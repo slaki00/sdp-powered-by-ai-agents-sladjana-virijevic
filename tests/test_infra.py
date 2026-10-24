@@ -794,3 +794,35 @@ def test_reporting_story_002_s3_ill_entry_with_no_valid_alternative_keeps_ill(
     # THEN the result file contains one line: "?00000000 ILL"
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines == ["?00000000 ILL"]
+
+
+def test_reporting_infra_003_1_s1_bankocr_marks_amb_entry_inside_container(
+    tmp_path,
+):
+    # GIVEN the BankOCR image has been built with `docker build -t bankocr .`
+    # AND a data folder contains a scan.txt with one entry representing 490067715:
+    #     _  _  _  _  _  _     _
+    # |_||_|| || ||_   |  |  ||_
+    #   | _||_||_||_|  |  |  | _|
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _     _ \n"
+        "|_||_|| || ||_   |  |  ||_ \n"
+        "  | _||_||_||_|  |  |  | _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
+    result = subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN data/result.txt on the local machine contains one line: "490067715 AMB"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["490067715 AMB"]
+    # AND the container exits with code 0
+    assert result.returncode == 0
