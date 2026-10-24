@@ -732,3 +732,34 @@ def test_reporting_story_002_s1_err_entry_with_one_valid_alternative_is_correcte
     # THEN the result file contains one line: "664371485" with no marker
     lines = result_file.read_text(encoding="utf-8").splitlines()
     assert lines == ["664371485"]
+
+
+def test_reporting_story_002_s2_ill_entry_with_one_valid_alternative_is_corrected(
+    tmp_path,
+):
+    # GIVEN a scan file with one entry whose three lines of 27 characters are
+    # (digit position 9 is a 1 missing its bottom pipe; Recognition produces
+    # "?23456789" with status ILL):
+    #     _  _     _  _  _  _  _
+    #   | _| _||_||_ |_   ||_||_|
+    #    |_  _|  | _||_|  ||_| _|
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "   |_  _|  | _||_|  ||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result file contains one line: "123456789" with no marker
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines == ["123456789"]
