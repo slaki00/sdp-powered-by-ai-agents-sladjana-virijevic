@@ -45,7 +45,8 @@ def correct_entry(
     change.  For an ILL entry only the '?' positions are candidates
     (REPORTING-BE-002.1-S1, REPORTING-BE-002.1-S2).
     Returns (corrected_number, "") when exactly one alternative passes the
-    checksum, or (account_number, status) otherwise.
+    checksum, (account_number, "AMB") when more than one passes
+    (REPORTING-BE-003.1), or (account_number, status) when none passes.
     """
     if status not in ("ERR", "ILL"):
         return account_number, status
@@ -71,4 +72,7 @@ def correct_entry(
 
     if len(valid_alternatives) == 1:
         return valid_alternatives[0], ""
+    # REPORTING-BE-003.1: more than one alternative passes → AMB
+    if valid_alternatives:
+        return account_number, "AMB"
     return account_number, status

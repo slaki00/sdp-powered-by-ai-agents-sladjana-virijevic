@@ -122,3 +122,31 @@ def test_reporting_be_002_2_s1_ill_entry_with_no_valid_alternative_keeps_ill():
     # THEN the result for this entry is "?00000000 ILL"
     assert corrected_number == "?00000000"
     assert new_status == "ILL"
+
+
+def test_reporting_be_003_1_s1_err_entry_490067715_becomes_amb():
+    # GIVEN an entry whose three lines of 27 characters are:
+    #     _  _  _  _  _  _     _
+    # |_||_|| || ||_   |  |  ||_
+    #   | _||_||_||_|  |  |  | _|
+    entry = [
+        "    _  _  _  _  _  _     _ ",
+        "|_||_|| || ||_   |  |  ||_ ",
+        "  | _||_||_||_|  |  |  | _|",
+    ]
+    # AND Recognition produces "490067715" with status ERR
+    # AND 490067715 fails the checksum: weighted sum 194, 194 mod 11 = 7
+    # AND the correction search finds three alternatives that pass:
+    #     490067115 (sum 176), 490067719 (sum 198), 490867715 (sum 242)
+    account_number = "490067715"
+    status = "ERR"
+
+    # WHEN Reporting & Correction evaluates the alternatives
+    corrected_number, new_status = correct_entry(
+        entry, account_number, status, DIGIT_PATTERNS, checksum_passes
+    )
+
+    # THEN the status is changed from ERR to AMB
+    assert new_status == "AMB"
+    # AND the result for this entry is "490067715 AMB"
+    assert corrected_number == "490067715"
