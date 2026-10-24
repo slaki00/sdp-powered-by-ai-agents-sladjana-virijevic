@@ -528,3 +528,43 @@ def test_validation_story_002_s2_all_nine_unreadable_marked_ill(tmp_path):
     assert len(lines) == 1
     # AND line 1 is "????????? ILL"
     assert lines[0] == "????????? ILL"
+
+
+def test_recognition_story_002_s1_unreadable_digit_marked_and_processing_continues(
+    tmp_path,
+):
+    # GIVEN a scan file with two entries:
+    # - first: all-spaces grid at digit position 1; its three lines of 27
+    #   characters are:
+    #       _  _  _  _  _  _  _  _
+    #      | || || || || || || || |
+    #      |_||_||_||_||_||_||_||_|
+    # - second: account number 123456789
+    scan_file = tmp_path / "scan.txt"
+    result_file = tmp_path / "result.txt"
+    scan_file.write_text(
+        "    _  _  _  _  _  _  _  _ \n"
+        "   | || || || || || || || |\n"
+        "   |_||_||_||_||_||_||_||_|\n"
+        "\n"
+        "    _  _     _  _  _  _  _ \n"
+        "  | _| _||_||_ |_   ||_||_|\n"
+        "  ||_  _|  | _||_|  ||_| _|\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    # WHEN the Operator runs BankOCR with the scan file
+    subprocess.run(
+        [sys.executable, "-m", "bankocr", str(scan_file), str(result_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    # THEN the result for the first entry is "?00000000 ILL"
+    lines = result_file.read_text(encoding="utf-8").splitlines()
+    assert lines[0] == "?00000000 ILL"
+    # AND the result for the second entry is "123456789"
+    assert lines[1] == "123456789"
+    # AND both entries appear in the result file; no entry is dropped
+    assert len(lines) == 2
