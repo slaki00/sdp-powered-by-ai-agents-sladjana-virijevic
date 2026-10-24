@@ -21,7 +21,7 @@ AS AN Operator I WANT BankOCR to validate every recognised account number with t
 **Scenario ID**: VALIDATION-STORY-001-S1
 
 **GIVEN**
-* A scan file with two entries: 345882865 and 664371495
+* A scan file with two entries: 345882865 and 222222222
 
 **WHEN**
 * The Operator runs BankOCR with the scan file
@@ -29,7 +29,7 @@ AS AN Operator I WANT BankOCR to validate every recognised account number with t
 **THEN**
 * The result file has two lines
 * Line 1 is "345882865" with no marker
-* Line 2 is "664371495 ERR"
+* Line 2 is "222222222 ERR"
 
 ## FE
 
@@ -138,7 +138,7 @@ The scan file and the result file are plain text files in a data folder on the l
 **Scenario ID**: VALIDATION-INFRA-001.2-S1
 
 **GIVEN**
-* A `data` folder on the local machine contains `scan.txt` with one entry representing 664371495
+* A `data` folder on the local machine contains `scan.txt` with one entry representing 222222222
 * No `result.txt` exists in the `data` folder
 
 **WHEN**
@@ -146,7 +146,7 @@ The scan file and the result file are plain text files in a data folder on the l
 
 **THEN**
 * `data/result.txt` is created on the local machine
-* `data/result.txt` contains "664371495 ERR"
+* `data/result.txt` contains "222222222 ERR"
 
 ### VALIDATION-INFRA-001.3: Monitoring through standard error
 
@@ -159,7 +159,7 @@ BankOCR writes no log files. Diagnostic messages go to standard error. An ERR en
 **Scenario ID**: VALIDATION-INFRA-001.3-S1
 
 **GIVEN**
-* A scan file containing 345882865 and 664371495
+* A scan file containing 345882865 and 222222222
 
 **WHEN**
 * The Operator runs `docker run --rm -v "$(pwd)/data":/data bankocr`
@@ -190,13 +190,13 @@ See RECOGNITION-INFRA-001.4: Test environment. The test environment is shared by
 
 | Scenario ID | Architecture | Parent story | Testable assertion (THEN) |
 |-------------|--------------|--------------|---------------------------|
-| VALIDATION-STORY-001-S1 | 5.3 Validation; 1.2 F2; 1.3 Accuracy; 10.2 Scenario 1 | VALIDATION-STORY-001 | Result file has two lines: "345882865" with no marker, "664371495 ERR" |
+| VALIDATION-STORY-001-S1 | 5.3 Validation; 1.2 F2; 1.3 Accuracy; 10.2 Scenario 1 | VALIDATION-STORY-001 | Result file has two lines: "345882865" with no marker, "222222222 ERR" |
 | VALIDATION-BE-001.1-S1 | 1.2 F2; 11 R4 | VALIDATION-BE-001.1 | Weighted sum is 231, 231 mod 11 is 0 |
 | VALIDATION-BE-001.1-S2 | 1.2 F2; 11 R4 | VALIDATION-BE-001.1 | Weighted sum is 222, 222 mod 11 is 2 |
 | VALIDATION-BE-001.2-S1 | 5.3 Validation; 8.2 Status Marking | VALIDATION-BE-001.2 | Number has no marker |
 | VALIDATION-BE-001.2-S2 | 5.3 Validation; 8.2 Status Marking | VALIDATION-BE-001.2 | Number is marked ERR |
 | VALIDATION-INFRA-001.1-S1 | 9 ADR-001, ADR-002, ADR-004; 7 Deployment View | VALIDATION-INFRA-001.1 | data/result.txt contains "345882865" with no marker; container exits with code 0 |
-| VALIDATION-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | VALIDATION-INFRA-001.2 | data/result.txt is created and contains "664371495 ERR" |
+| VALIDATION-INFRA-001.2-S1 | 9 ADR-001, ADR-004; 7.1 Infrastructure (Data Folder) | VALIDATION-INFRA-001.2 | data/result.txt is created and contains "222222222 ERR" |
 | VALIDATION-INFRA-001.3-S1 | 8.1 Error Handling; 8.3 Logging | VALIDATION-INFRA-001.3 | Nothing on standard error; data/result.txt is the only file written to the data folder |
 
 Every scenario traces back to an architecture section, a parent story and a testable THEN clause.
