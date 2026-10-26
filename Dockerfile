@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ src/
 COPY tests/ tests/
+COPY pyproject.toml .
 
 # Make the bankocr package importable from src/
 ENV PYTHONPATH=/app/src
@@ -19,5 +20,5 @@ ENV PYTHONPATH=/app/src
 # Run as the non-root user
 USER appuser
 
-# Run tests by default
-CMD ["pytest", "-p", "no:cacheprovider", "tests/", "-v", "--tb=short"]
+# Run the CLI by default; tests run with --entrypoint pytest (ADR-004)
+ENTRYPOINT ["python", "-m", "bankocr"]

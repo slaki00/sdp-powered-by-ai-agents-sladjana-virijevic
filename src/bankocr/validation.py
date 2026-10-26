@@ -18,6 +18,9 @@ def checksum_passes(digits: str) -> bool:
 def assign_status(digits: str) -> str:
     """Return the validation marker for an account number.
 
-    Returns "" for a valid number, "ERR" when the checksum fails.
+    Returns "ILL" when any digit is unreadable (?),
+    "" for a valid number, or "ERR" when the checksum fails.
     """
+    if "?" in digits:  # VALIDATION-BE-002.1-S1
+        return "ILL"
     return "" if checksum_passes(digits) else "ERR"
